@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+    <head>
+        <link href="css/lib/jquery-ui-1.8.21.custom.css" rel="stylesheet" type="text/css" />
+        <link href="css/lib/codemirror.css" rel="stylesheet" type="text/css" />
+        <link href="css/lib/codemirror-dialog.css" rel="stylesheet" type="text/css" />
+        <link href="css/lib/combobox.css" rel="stylesheet" type="text/css" />
+        <link href="css/cs50.run.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="js/lib/jquery-ui-1.8.21.custom.min.js"></script>
+        <script type="text/javascript" src="js/lib/underscore-min.js"></script>
+        <script type="text/javascript" src="js/lib/socket.io.min.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/codemirror.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/clike.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/css.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/javascript.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/mysql.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/php.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/python.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/ruby.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/dialog.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/search.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/searchcursor.js"></script>
+        <script type="text/javascript" src="js/lib/cs50/jquery.combobox.js"></script>
+        <script type="text/javascript" src="js/cs50.run.js"></script>
+
+        <script>
+            $(function() {
+                var run = new CS50.Run({
+                    container: '#run',
+                    runUrl: '/run',
+                    socketUrl: '/',
+                    uploadUrl: '/upload',
+                    height: '508px',
+                    width: '1280px'
+                });
+            });
+        </script>
+        <style type="text/css">
+            body ,html {
+                margin: 0px;
+                padding: 0px;
+                width: 100%;
+                height: 100%;
+            }
+
+            #run {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="run"></div>
+    </body>
+</html>
