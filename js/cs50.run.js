@@ -319,7 +319,7 @@ CS50.Run.prototype.execute = function(commands) {
             if (data.error.code == 'E_TIMEOUT')
                 text = 'Your program took too long to run!';
             else if (data.error.code == 'E_KILLED')
-                text = 'Your program\'s execution was terminated!';
+                text = 'Your program was terminated!';
             else if (data.error.code == 'E_USAGE')
                 text = 'CS50 Run was used incorrectly';
         }
