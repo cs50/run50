@@ -111,10 +111,10 @@ echo "Hello, run50!\\n";\n\
                 <div class="run50-controls"> \
                     <a href="#" class="btn-run"> \
                        <img class="run-img" src="img/run.png"/>  \
-                       <img class="paused-img" src="img/ajax-loader.gif"/>  \
+                       <img class="paused-img" src="img/stop.png"/>  \
                     </a> \
                     <div class="run50-lang-wrapper"> \
-                        <select class="run50-lang"> \
+                        <select class="run50-lang chzn-select"> \
                             <% for (var i in languages) { %> \
                                 <option value="<%= languageNames[languages[i]] %>"><%= languages[i] %></option> \
                             <% } %> \
@@ -205,14 +205,13 @@ CS50.Run.prototype.createEditor = function() {
         // server is currently running, so stop
         if ($(this).hasClass('running')) {
             me.socket.emit('SIGINT');
+            $container.find('.run50-input.active').before('<br/>');        
         }
-        
-        // replace button image and run code
-        else {
-            $(this).addClass('running');
-            $(this).find('.run-img').hide();
-            $(this).find('.paused-img').show();
-
+        // else, it was the play button, so trigger uploading
+        // NOTE: upload cancelling is handled down in upload() since we need
+        // a reference to the xhr object
+        else if (!$(this).hasClass('uploading')) {
+            $(this).addClass('uploading');
             $('.run50-status .status-loader').fadeIn(); 
             $('.run50-controls').removeClass('.success, .error');
             me.run();
@@ -223,8 +222,10 @@ CS50.Run.prototype.createEditor = function() {
     $container.on('keyup', '.run50-input', function(e) {
         if (e.ctrlKey) {
             // ctrl-c
-            if (e.which == 67)
+            if (e.which == 67) {
                 me.socket.emit('SIGINT');
+                $container.find('.run50-input.active').before('<br/>');        
+            }
             else if (e.which == 68)
                 me.socket.emit('EOF');
         }
@@ -234,7 +235,7 @@ CS50.Run.prototype.createEditor = function() {
     $container.on('change', '.run50-lang', function() {
         me.setLanguage($(this).val());
     });
-    $container.find('.run50-lang').val(this.languageNames[this.options.defaultLanguage]).combobox().trigger('change');
+    $container.find('.run50-lang').val(this.languageNames[this.options.defaultLanguage]).chosen().trigger('change');
 
     // when options is moused over, display run options
     $container.on('click', '.btn-options', function() {
@@ -311,62 +312,11 @@ CS50.Run.prototype.createEditor = function() {
  *
  */
 CS50.Run.prototype.execute = function(commands) {
-    // reusable function for an execution failure
-    function failure($container, data) {
-        // display error-specific text
-        var text = 'An error occurred.';
-        if (data) {
-            if (data.error.code == 'E_TIMEOUT')
-                text = 'Your program took too long to run!';
-            else if (data.error.code == 'E_KILLED')
-                text = 'Your program was terminated!';
-            else if (data.error.code == 'E_USAGE')
-                text = 'CS50 Run was used incorrectly';
-        }
-
-        // display error message
-        $container.find('.run50-status .status-text').text(text);
-       
-        // update status area
-        $container.find('.run50-status').addClass('error');
-        setTimeout(function() {
-            $('.run50-status').removeClass('error success');
-        }, 2000);
-
-        // reenable buttons
-        $container.find('.btn-run').removeClass('running');
-        $container.find('.paused-img').hide();
-        $container.find('.run-img').show();
-        $container.find('.run50-status .status-loader').fadeOut(); 
-
-        // create new console line without prompt
-        newline($container, true);
-    }
-
-    // reusable function for creating a new input line and scrolling to it
-    function newline($container, hidePrompt) {
-        // create new input line
-        $container.find('.run50-input.active').remove();
-
-        // determine whether to display the prompt or not
-        var $input = $('<div class="run50-input active" contenteditable="false"></div>');
-        if (!hidePrompt) {
-            var $prompt = $('<span>jharvard@run.cs50.org (~): </span>');
-            $container.find('.run50-console').append($prompt)
-            $input.css('text-indent', $prompt.width());
-            $prompt.replaceWith($prompt.text());
-        }
-        $container.find('.run50-console').append($input);
-        
-        // scroll to bottom of container
-        scroll($container);
-    }
-
     // reusable function for scrolling to the bottom of the console
     function scroll($container) {
         $container.find('.run50-console').scrollTop(999999);
     }
-
+    
     // execute next command in queue
     var command = commands.shift();
     if (command) {
@@ -396,12 +346,12 @@ CS50.Run.prototype.execute = function(commands) {
 
             // error occurred on a command, so halt execution of queue and display error
             if (data.code !== 0)
-                failure($(me.options.container));
+                me.failure($(me.options.container));
 
             // successful, so continue execution queue
             else {
                 // create new console line
-                newline($container, commands.length === 0);
+                me.newline($container, commands.length === 0);
                 
                 // on last command, display successful run message
                 if (commands.length === 0) {
@@ -409,9 +359,7 @@ CS50.Run.prototype.execute = function(commands) {
                 
                     // delay a bit so they don't fade before message changes
                     setTimeout(function() {
-                        $container.find('.btn-run').removeClass('running');
-                        $container.find('.paused-img').hide();
-                        $container.find('.run-img').show();
+                        $container.find('.btn-run').removeClass('uploading running');
                         $container.find('.run50-status .status-loader').fadeOut(); 
                         $container.find('.run50-status').addClass('success');
                     }, 300);
@@ -436,9 +384,9 @@ CS50.Run.prototype.execute = function(commands) {
         // listen for error
         this.socket.on('error', function(data) {
             me.socket.disconnect();
-            failure($(me.options.container), data);
+            me.failure($(me.options.container), data);
         });
-
+        
         // listen for stdout
         this.socket.on('stdout', function(data) {
             // prepend data, and adjust text indent to match
@@ -453,6 +401,9 @@ CS50.Run.prototype.execute = function(commands) {
         this.socket.on('stderr', function(data) {
             // display error message
             $container.find('.run50-input.active').before('<span style="color: red">' + data + '</span>');
+            if(data.charAt(data.length - 1) == "\r\n" || data.charAt(data.length - 1) == "\n")
+                $container.find('.run50-input.active').before('<br/>');        
+
             scroll($container);
         });
 
@@ -465,12 +416,78 @@ CS50.Run.prototype.execute = function(commands) {
 };
 
 /**
+ * Reusable function for an execution failure
+ * @param $container container for scoping selectors
+ * @param data data associated with the error, optional
+ *
+ */
+CS50.Run.prototype.failure = function($container, data) {
+    var me = this;
+    
+    // display error-specific text
+    var text = 'An error occurred.';
+    if (data) {
+        if (data.error.code == 'E_TIMEOUT')
+            text = 'Your program took too long to run!';
+        else if (data.error.code == 'E_USAGE')
+            text = 'CS50 Run was used incorrectly';
+        else if (data.error.code == 'E_KILLED')
+            text = 'Your program was terminated!';
+        else if (data.error.code == 'SERVER_DOWN')
+            text = "CS50 Run seems to be down. Wait and try again?";
+        else if (data.error.code == 'UPLOAD_CANCEL')
+            text = "Upload Canceled.";
+    }
+
+    // display error message
+    $container.find('.run50-status .status-text').text(text);
+   
+    // update status area
+    $container.find('.run50-status').addClass('error');
+    setTimeout(function() {
+        $('.run50-status').removeClass('error success');
+    }, 2000);
+
+    // reenable buttons
+    $container.find('.btn-run').removeClass('uploading running');
+    $container.find('.run50-status .status-loader').fadeOut(); 
+
+    // create new console line without prompt
+    me.newline($container, true);
+}
+
+/**
  * Get the code currently loaded into the editor
  *
  */
 CS50.Run.prototype.getCode = function() {
     return this.editor.getValue();
 }
+
+/**
+ * Reusable function for creating a new input line and scrolling to it
+ * @param $container container for scoping selectors
+ * @param hidePrompt bool on whether to display prompt on next line
+ *
+ */
+CS50.Run.prototype.newline = function($container, hidePrompt) {
+    // create new input line
+    $container.find('.run50-input.active').remove();
+
+    // determine whether to display the prompt or not
+    var $input = $('<div class="run50-input active" contenteditable="false"></div>');
+    if (!hidePrompt) {
+        var $prompt = $('<span>jharvard@run.cs50.org (~): </span>');
+        $container.find('.run50-console').append($prompt)
+        $input.css('text-indent', $prompt.width());
+        $prompt.replaceWith($prompt.text());
+    }
+    $container.find('.run50-console').append($input);
+    
+    // scroll to bottom of container
+    scroll($container);
+}
+
 
 /**
  * Run the current editor contents
@@ -516,6 +533,8 @@ CS50.Run.prototype.setLanguage = function(mime) {
  *
  */
 CS50.Run.prototype.upload = function(filename, commands) {
+    var me = this;
+    
     // prepend prompt
     var $prompt = $('<span>jharvard@run.cs50.org (~): </span>');
     var $input = $(this.options.container).find('.run50-input.active').before($prompt);
@@ -530,16 +549,48 @@ CS50.Run.prototype.upload = function(filename, commands) {
     var me = this;
     var data = {};
     data[filename] = this.editor.getValue();
-    $.ajax({
+     
+    // reference to function for manually aborting an upload
+    var $container = $(this.options.container);
+    var $runBtn = $container.find('.btn-run');
+    var abortUpload = function(e) {
+        console.log('hi');
+        xhr.abort();
+    }
+
+    var xhr = $.ajax({
         data: data,
         dataType: 'json',
         type: 'post',
         url: this.options.uploadUrl,
-
+        beforeSend: function(xhr) {
+            $runBtn.click(abortUpload);
+            
+            // abort and notify user if connection never made to the server
+            setTimeout(function() {
+                if (xhr.readyState == 0)
+                    xhr.abort();
+            }, 10000);
+        },
         // after file is uploaded, execute given commands
         success: function(data, textStatus, jqXHR) {
+            // unbind manual upload abort event handler
+            $runBtn.removeClass('uploading').addClass('running');
             me.sandbox = { homedir: data.id };
             me.execute(commands);
+        },
+        error: function(data, txtStatus, jqXHR) {
+            // handle different errors
+            var error;
+            if (data.readyState == 0 || data.status == 404)
+                var error = { error: { code: "SERVER_DOWN" } };
+            else 
+                var error = { error: { code: "UPLOAD_CANCEL" } };
+            me.failure($(me.options.container), error);
+        },
+        complete: function(jqXHR, textStatus) {
+            // cleanup
+            $runBtn.unbind('click', abortUpload);
         }
     });
 

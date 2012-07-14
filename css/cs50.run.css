@@ -67,6 +67,7 @@
 
 .run50-container .run50-console span {
     display: inline-block;
+    vertical-align: top;
 }
 
 .run50-container .run50-console .run50-input {
@@ -77,6 +78,7 @@
     font-family: monospace;
     font-size: 13px;
     margin-top: -20px;
+    min-height: 20px;
     word-break: break-word;
 }
 
@@ -84,8 +86,14 @@
     outline: none;
 }
 
-.run50-container .run50-options, .run50-container .run50-console-controls {
+.run50-container .run50-options {
     display: none;
+    font-family: monospace;
+}
+
+.run50-container .run50-options input {
+    font-family: monospace;
+    width: 250px;
 }
 
 .run50-container .run50-splitter {
@@ -106,15 +114,24 @@
     display: inline-block;
     margin: 14px 0px 12px 5px;
     vertical-align: top;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.run50-lang-wrapper .ui-combobox .ui-autocomplete-input {
-    border: 1px solid #AAA;
+.run50-lang {
+    width: 200px;
 }
 
-.run50-lang-wrapper .ui-combobox .ui-button-icon,
-.run50-lang-wrapper .ui-combobox .ui-button-icon-only {
-    border: 1px solid #AAA;
+.run50-lang-wrapper .chzn-search {
+    display: none;
+}
+
+.run50-lang-wrapper *:focus {
+    outline: none;
+}
+
+.run50-lang-wrapper .chzn-drop {
+    border-top: 1px solid #BBB;
+    padding-top: 3px;
 }
 
 /* Run50 Control Bar */
@@ -279,7 +296,16 @@
 
 .paused-img {
     display: none;
-    margin: 7px 0px 6px 0px;
+    height: 20px;
+    margin: 7px 0px 7px 0px;
+}
+
+.btn-run.uploading .run-img, .btn-run.running .run-img {
+    display: none;
+}
+
+.btn-run.uploading .paused-img, .btn-run.running .paused-img {
+    display: inline-block;
 }
 
 
