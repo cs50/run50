@@ -451,15 +451,9 @@ CS50.Run.prototype.execute = function(commands) {
 
         // listen for stderr
         this.socket.on('stderr', function(data) {
-            // ignore sandbox errors
-            if (!data.match(/Failed to remove directory \/tmp\/[\.\w\-]+: No such file or directory/)) { 
-                // strip sandbox path from error message
-                data = data.replace(/\/tmp\/sandboxes\/[\w-]+\//g, '');
-                
-                // display error message
-                $container.find('.run50-input.active').before('<span style="color: red">' + data + '</span>');
-                scroll($container);
-            }
+            // display error message
+            $container.find('.run50-input.active').before('<span style="color: red">' + data + '</span>');
+            scroll($container);
         });
 
         // send command to server
@@ -530,7 +524,7 @@ CS50.Run.prototype.upload = function(filename, commands) {
 
     // update status bar
     var $status = $(this.options.container).find('.run50-status .status-text');
-    $status.text('Uploading file...');
+    $status.text('Uploading source code...');
 
     // upload file to server with editor contents
     var me = this;
