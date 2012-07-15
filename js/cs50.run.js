@@ -284,7 +284,7 @@ CS50.Run.prototype.createEditor = function() {
     $container.on('blur', '.run50-options [contenteditable]', function() {
         // determine which text input was change
         var t = this;
-        $container.find('.run50-options [contenteditable]').each(function(i, e) {
+        $container.find('.run50-options input').each(function(i, e) {
             // update args value for the input
             if (t == this)
                 me.commands[me.language][i].args = $(this).text();
