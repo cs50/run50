@@ -133,14 +133,6 @@
     position: relative;
 }
 
-.btn-options {
-    float: right;
-    display: inline-block;
-    text-decoration: none;
-    padding: 15px 20px 13px 20px;
-    border-left: 1px solid #CCC;
-}
-
 .run50-status {
     background-image: -moz-linear-gradient(top, rgba(255, 255, 255, .9) 50%, rgba(240, 240, 240, .9));
     background-image: -ms-linear-gradient(top, rgba(255, 255, 255, .9) 50%, rgba(240, 240, 240, .9));
@@ -187,7 +179,6 @@
 
 .run50-options {
     background: #F8F8F8;
-    background-color: white;
     border-radius: 0px 0px 0px 4px;
     color: #333;
     display: none;
@@ -233,6 +224,14 @@
 
 .run50-options .divider:last-child {
     display: none;
+}
+
+.btn-options {
+    float: right;
+    display: inline-block;
+    text-decoration: none;
+    padding: 15px 20px 15px 20px;
+    border-left: 1px solid #CCC;
 }
 
 .btn-options span {
