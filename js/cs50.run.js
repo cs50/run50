@@ -32,7 +32,7 @@ CS50.Run = function(options) {
     // map from mimes to commands necessary to run code
     this.commands = {
         'text/x-csrc': [
-            { command: 'clang file.c', args: '-lcs50 -std=c99 -Wall -Werror' },
+            { command: 'clang file.c', args: '-lcs50 -std=c99 -Wall -Werror -fcolor-diagnostics' },
             { command: './a.out', args: '' }
         ],
 
@@ -121,7 +121,7 @@ echo "Hello, run50!\\n";\n\
                         </select>\
                     </div> \
                     <a href="#" class="btn-options"> \
-                        <img src="img/gear.png"/> \
+                        <div class="gear-btn"></div> \
                         <span>Command Line</span> \
                     </a> \
                     <div class="run50-options"></div> \
@@ -241,10 +241,14 @@ CS50.Run.prototype.createEditor = function() {
     $container.on('click', '.btn-options', function() {
         $options = $container.find('.run50-options');
 
-        if ($options.is(":visible"))
-            $container.find('.run50-options').slideUp('fast');
-        else  
-            $container.find('.run50-options').slideDown('fast');
+        if ($options.is(":visible")) {
+            $container.find('.run50-options').removeClass('active');
+            $container.find('.btn-options').removeClass('active');
+        }
+        else {  
+            $container.find('.run50-options').addClass('active');
+            $container.find('.btn-options').addClass('active');
+        }
     });
 
     // create splitter
@@ -392,19 +396,39 @@ CS50.Run.prototype.execute = function(commands) {
             // prepend data, and adjust text indent to match
             var $prompt = $('<span>' + data + '</span>');
             var $input = $container.find('.run50-input.active').before($prompt);
-            $input.css('text-indent', $prompt.width());
+            $input.css('text-indent', 
+                $prompt.position().left - 
+                parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
+                $prompt.width()
+            );
             $prompt.replaceWith($prompt.text());
             scroll($container);
         });
 
-        // listen for stderr
+        // listening and buffering for standard error
+        var buffer = "";
         this.socket.on('stderr', function(data) {
-            // display error message
-            $container.find('.run50-input.active').before('<span style="color: red">' + data + '</span>');
-            if(data.charAt(data.length - 1) == "\r\n" || data.charAt(data.length - 1) == "\n")
-                $container.find('.run50-input.active').before('<br/>');        
-
-            scroll($container);
+            // if we get a valid ansi sequence, display the message
+            buffer += data;           
+            if (validANSI(buffer)) {
+                // get colored buffer and correct for newlines
+                var coloredHTML = ""; 
+                var colored = ansispan(buffer).split('</span>');
+                
+                // construct the coloring, with line breaks inserted
+                for (var i in colored) {
+                    coloredHTML += colored[i] + "</span>";
+                    if (colored[i].charAt(colored[i].length - 1) == "\r\n" || colored[i].charAt(colored[i].length - 1) == "\n")
+                        coloredHTML += "</br>";
+                }
+                
+                // display error message
+                $container.find('.run50-input.active').before(coloredHTML);
+                scroll($container);
+           
+                // clear the buffer    
+                buffer = "";
+            }
         });
 
         // send command to server
@@ -423,7 +447,7 @@ CS50.Run.prototype.execute = function(commands) {
  */
 CS50.Run.prototype.failure = function($container, data) {
     var me = this;
-    
+   
     // display error-specific text
     var text = 'An error occurred.';
     if (data) {
@@ -436,7 +460,7 @@ CS50.Run.prototype.failure = function($container, data) {
         else if (data.error.code == 'SERVER_DOWN')
             text = "CS50 Run seems to be down. Wait and try again?";
         else if (data.error.code == 'UPLOAD_CANCEL')
-            text = "Upload Canceled.";
+            text = "Run canceled.";
     }
 
     // display error message
@@ -478,8 +502,12 @@ CS50.Run.prototype.newline = function($container, hidePrompt) {
     var $input = $('<div class="run50-input active" contenteditable="false"></div>');
     if (!hidePrompt) {
         var $prompt = $('<span>jharvard@run.cs50.org (~): </span>');
-        $container.find('.run50-console').append($prompt)
-        $input.css('text-indent', $prompt.width());
+        $container.find('.run50-console').append($prompt);
+        $input.css('text-indent', 
+            $prompt.position().left - 
+            parseInt($(this.options.container).find('.run50-console').css('padding-left')) + 
+            $prompt.width()
+        );
         $prompt.replaceWith($prompt.text());
     }
     $container.find('.run50-console').append($input);
@@ -535,14 +563,18 @@ CS50.Run.prototype.setLanguage = function(mime) {
 CS50.Run.prototype.upload = function(filename, commands) {
     var me = this;
     
-    // prepend prompt
+    // prepend prompt, compensate for spacing
     var $prompt = $('<span>jharvard@run.cs50.org (~): </span>');
-    var $input = $(this.options.container).find('.run50-input.active').before($prompt);
-    $input.css('text-indent', $prompt.width());
+    var $input = $(me.options.container).find('.run50-input.active').before($prompt);
+    $input.css('text-indent',
+        $prompt.position().left - 
+        parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
+        $prompt.width()
+    );
     $prompt.replaceWith($prompt.text());
 
     // update status bar
-    var $status = $(this.options.container).find('.run50-status .status-text');
+    var $status = $(me.options.container).find('.run50-status .status-text');
     $status.text('Uploading source code...');
 
     // upload file to server with editor contents
@@ -554,7 +586,6 @@ CS50.Run.prototype.upload = function(filename, commands) {
     var $container = $(this.options.container);
     var $runBtn = $container.find('.btn-run');
     var abortUpload = function(e) {
-        console.log('hi');
         xhr.abort();
     }
 
