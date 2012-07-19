@@ -33,8 +33,8 @@ CS50.Run = function(options) {
         ],
 
         'text/x-java': [
-            { command: 'javac Class.java', args: '' },
-            { command: 'java', args: 'Class' }
+            { command: 'javac -J-Xmx128M file.java', args: '' },
+            { command: 'java -Xmx64M', args: 'Class' }
         ],
 
         'text/x-php': [
