@@ -388,7 +388,7 @@ CS50.Run.prototype.execute = function(commands) {
         // listen for error
         this.socket.on('error', function(data) {
             me.socket.disconnect();
-            me.failure($(me.options.container), data);
+            me.failure($(me.options.container), data.error.code);
         });
         
         // listen for stdout
@@ -445,22 +445,28 @@ CS50.Run.prototype.execute = function(commands) {
  * @param data data associated with the error, optional
  *
  */
-CS50.Run.prototype.failure = function($container, data) {
+CS50.Run.prototype.failure = function($container, code) {
     var me = this;
    
     // display error-specific text
     var text = 'An error occurred.';
-    if (data) {
-        if (data.error.code == 'E_TIMEOUT')
-            text = 'Your program took too long to run!';
-        else if (data.error.code == 'E_USAGE')
-            text = 'CS50 Run was used incorrectly';
-        else if (data.error.code == 'E_KILLED')
-            text = 'Your program was terminated!';
-        else if (data.error.code == 'SERVER_DOWN')
-            text = "CS50 Run seems to be down. Wait and try again?";
-        else if (data.error.code == 'UPLOAD_CANCEL')
-            text = "Run canceled.";
+    switch (code) {
+
+        case 'E_TIMEOUT':
+            text = 'Your program took too long to run!'; break;
+
+        case 'E_USAGE':
+            text = 'CS50 Run was used incorrectly'; break;
+
+        case 'E_KILLED':
+            text = 'Your program was terminated!'; break;
+
+        case 'E_USER_SERVER_DOWN':
+            text = "CS50 Run seems to be down. Wait and try again?"; break;
+
+        case 'E_USER_UPLOAD_ERROR':
+            text = "Upload failed! Wait and try again?"; break;
+
     }
 
     // display error message
@@ -599,8 +605,9 @@ CS50.Run.prototype.upload = function(filename, commands) {
             
             // abort and notify user if connection never made to the server
             setTimeout(function() {
-                if (xhr.readyState == 0)
+                if (xhr.readyState == 0) {
                     xhr.abort();
+                }
             }, 10000);
         },
         // after file is uploaded, execute given commands
@@ -613,11 +620,12 @@ CS50.Run.prototype.upload = function(filename, commands) {
         error: function(data, txtStatus, jqXHR) {
             // handle different errors
             var error;
-            if (data.readyState == 0 || data.status == 404)
-                var error = { error: { code: "SERVER_DOWN" } };
-            else 
-                var error = { error: { code: "UPLOAD_CANCEL" } };
-            me.failure($(me.options.container), error);
+            if (data.readyState === 0 || (data.readyState == 4 && data.status !== 200)) {
+                me.failure($(me.options.container), 'E_USER_SERVER_DOWN');
+            }
+            else {
+                me.failure($(me.options.container), 'E_USER_UPLOAD_ERROR');
+	    }
         },
         complete: function(jqXHR, textStatus) {
             // cleanup
