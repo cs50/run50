@@ -247,7 +247,7 @@
     width: 20px;
     vertical-align: middle;
     margin-right: 5px;
-    background-image: url('../img/gear.png');
+    background-image: url('img/gear.png');
 }
 
 .btn-options.active .gear-btn {

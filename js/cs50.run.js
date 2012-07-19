@@ -106,8 +106,8 @@ echo "Hello, run50!\\n";\n\
             <div class="run50-container"> \
                 <div class="run50-controls"> \
                     <a href="#" class="btn-run"> \
-                       <img class="run-img" src="img/run.png"/>  \
-                       <img class="paused-img" src="img/stop.png"/>  \
+                       <img class="run-img" src="css/img/run.png"/>  \
+                       <img class="paused-img" src="css/img/stop.png"/>  \
                     </a> \
                     <div class="run50-lang-wrapper"> \
                         <select class="run50-lang chzn-select"> \
@@ -123,7 +123,7 @@ echo "Hello, run50!\\n";\n\
                     <div class="run50-options"></div> \
                     <div class="run50-status"> \
                         <span class="status-text"></span> \
-                        <img class="status-loader" src="img/ajax-bar.gif"/> \
+                        <img class="status-loader" src="css/img/ajax-bar.gif"/> \
                     </div> \
                 </div> \
                 <div class="run50-split-container"> \
