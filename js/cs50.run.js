@@ -28,7 +28,7 @@ CS50.Run = function(options) {
     // map from mimes to commands necessary to run code
     this.commands = {
         'text/x-csrc': [
-            { command: 'clang file.c', args: '-lcs50 -std=c99 -Wall -Werror -fcolor-diagnostics' },
+            { command: 'clang file.c', args: '-lcs50 -std=c99 -Wall -Werror -fno-color-diagnostics' },
             { command: './a.out', args: '' }
         ],
 
@@ -404,6 +404,12 @@ CS50.Run.prototype.execute = function(commands) {
         // listening and buffering for standard error
         var buffer = "";
         this.socket.on('stderr', function(data) {
+
+            /* DJM: temporarily here until ANSI bug is resolved */
+            $container.find('.run50-input.active').before(data.toString());
+            scroll($container);
+
+            /* DJM: temporarily disabled until ANSI bug is resolved
             // if we get a valid ansi sequence, display the message
             buffer += data;           
             if (validANSI(buffer)) {
@@ -425,6 +431,8 @@ CS50.Run.prototype.execute = function(commands) {
                 // clear the buffer    
                 buffer = "";
             }
+            */
+
         });
 
         // send command to server
