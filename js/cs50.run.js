@@ -7,11 +7,9 @@ var CS50 = CS50 || {};
  * @param options Editor options:
  *      container: DOM element into which editor will be loaded
  *      defaultLanguage: Language to start the editor off in (C, Java, PHP, Python, Ruby)
+ *      endpoint: URL of CS50 Run's server
  *      height: Height of the editor, not including the console
  *      languages: Languages user can choose from (C, Java, PHP, Python, Ruby)
- *      runUrl: Location of server's /run route
- *      socketUrl: Location of server's / route
- *      uploadUrl: Location of server's /upload route
  *      width: Width of the editor
  *
  */
@@ -24,10 +22,8 @@ CS50.Run = function(options) {
 
     // define default options
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
+    this.options.endpoint = (options.endpoint === undefined) ? '' : options.endpoint.replace(/\/+$/, '');
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
-    this.options.runUrl = (options.runUrl === undefined) ? '/run' : options.runUrl;
-    this.options.socketUrl = (options.socketUrl === undefined) ? '/' : options.socketUrl;
-    this.options.uploadUrl = (options.uploadUrl === undefined) ? '/upload' : options.uploadUrl;
 
     // map from mimes to commands necessary to run code
     this.commands = {
@@ -325,7 +321,7 @@ CS50.Run.prototype.execute = function(commands) {
     var command = commands.shift();
     if (command) {
         // connect to server
-        this.socket = io.connect(this.options.socketUrl, {
+        this.socket = io.connect(this.options.endpoint, {
             'force new connection': true
         });
 
@@ -599,7 +595,7 @@ CS50.Run.prototype.upload = function(filename, commands) {
         data: data,
         dataType: 'json',
         type: 'post',
-        url: this.options.uploadUrl,
+        url: this.options.endpoint + '/upload',
         beforeSend: function(xhr) {
             $runBtn.click(abortUpload);
             
