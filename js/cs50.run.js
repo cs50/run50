@@ -105,10 +105,10 @@ echo "Hello, run50!\\n";\n\
         editor: ' \
             <div class="run50-container"> \
                 <div class="run50-controls"> \
-                    <a href="#" class="btn-run"> \
-                       <img class="run-img" src="css/img/run.png"/>  \
-                       <img class="paused-img" src="css/img/stop.png"/>  \
-                    </a> \
+                    <button class="btn-run"> \
+                       <div class="run-img"></div> \
+                       <div class="paused-img"></div> \
+                    </button> \
                     <div class="run50-lang-wrapper"> \
                         <select class="run50-lang chzn-select"> \
                             <% for (var i in languages) { %> \
@@ -116,10 +116,10 @@ echo "Hello, run50!\\n";\n\
                             <% } %> \
                         </select>\
                     </div> \
-                    <a href="#" class="btn-options"> \
+                    <button class="btn-options"> \
                         <div class="gear-btn"></div> \
                         <span>Command Line</span> \
-                    </a> \
+                    </button> \
                     <div class="run50-options"></div> \
                     <div class="run50-status"> \
                         <span class="status-text"></span> \
@@ -277,13 +277,13 @@ CS50.Run.prototype.createEditor = function() {
     });
 
     // when input is blurred, update args
-    $container.on('blur', '.run50-options [contenteditable]', function() {
-        // determine which text input was change
+    $container.on('blur', '.run50-options input', function() {
+        // determine which text input was changed
         var t = this;
         $container.find('.run50-options input').each(function(i, e) {
             // update args value for the input
             if (t == this)
-                me.commands[me.language][i].args = $(this).text();
+                me.commands[me.language][i].args = $(this).val();
         });
     });
 
@@ -312,11 +312,6 @@ CS50.Run.prototype.createEditor = function() {
  *
  */
 CS50.Run.prototype.execute = function(commands) {
-    // reusable function for scrolling to the bottom of the console
-    function scroll($container) {
-        $container.find('.run50-console').scrollTop(999999);
-    }
-    
     // execute next command in queue
     var command = commands.shift();
     if (command) {
@@ -337,7 +332,7 @@ CS50.Run.prototype.execute = function(commands) {
         $container.find('.run50-console')
             .append('<div class="run50-input active" contenteditable="true"></div>');
         $container.find('.run50-input.active').focus();
-        scroll($container);
+        this.scroll($container);
 
         // listen for success
         var me = this;
@@ -398,7 +393,7 @@ CS50.Run.prototype.execute = function(commands) {
                 $prompt.width()
             );
             $prompt.replaceWith($prompt.text());
-            scroll($container);
+            me.scroll($container);
         });
 
         // listening and buffering for standard error
@@ -407,7 +402,7 @@ CS50.Run.prototype.execute = function(commands) {
 
             /* DJM: temporarily here until ANSI bug is resolved */
             $container.find('.run50-input.active').before(data.toString());
-            scroll($container);
+            me.scroll($container);
 
             /* DJM: temporarily disabled until ANSI bug is resolved
             // if we get a valid ansi sequence, display the message
@@ -426,7 +421,7 @@ CS50.Run.prototype.execute = function(commands) {
                 
                 // display error message
                 $container.find('.run50-input.active').before(coloredHTML);
-                scroll($container);
+                me.scroll($container);
            
                 // clear the buffer    
                 buffer = "";
@@ -455,22 +450,25 @@ CS50.Run.prototype.failure = function($container, code) {
     // display error-specific text
     var text = 'An error occurred.';
     switch (code) {
-
         case 'E_TIMEOUT':
-            text = 'Your program took too long to run!'; break;
+            text = 'Your program took too long to run!';
+            break;
 
         case 'E_USAGE':
-            text = 'CS50 Run was used incorrectly'; break;
+            text = 'CS50 Run was used incorrectly';
+            break;
 
         case 'E_KILLED':
-            text = 'Your program was terminated!'; break;
+            text = 'Your program was terminated!';
+            break;
 
         case 'E_USER_SERVER_DOWN':
-            text = "CS50 Run seems to be down. Wait and try again?"; break;
+            text = "CS50 Run seems to be down. Wait and try again?";
+            break;
 
         case 'E_USER_UPLOAD_ERROR':
-            text = "Upload failed! Wait and try again?"; break;
-
+            text = "Upload failed! Wait and try again?";
+            break;
     }
 
     // display error message
@@ -523,9 +521,8 @@ CS50.Run.prototype.newline = function($container, hidePrompt) {
     $container.find('.run50-console').append($input);
     
     // scroll to bottom of container
-    scroll($container);
+    this.scroll($container);
 }
-
 
 /**
  * Run the current editor contents
@@ -563,6 +560,16 @@ CS50.Run.prototype.setLanguage = function(mime) {
         }));
     });
 };
+
+/**
+ * Scroll to the bottom of the console
+ *
+ * @param $container Container to scroll
+ *
+ */
+CS50.Run.prototype.scroll = function($container) {
+    $container.find('.run50-console').scrollTop(999999);
+}
 
 /**
  * Upload a file, then execute the given commands

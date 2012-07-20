@@ -227,11 +227,16 @@
 }
 
 .btn-options {
+    background: none !important;
     float: right;
     display: inline-block;
     text-decoration: none;
     padding: 15px 20px 15px 20px;
     border-left: 1px solid #CCC;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-right: none !important;
+    cursor: pointer;
 }
 
 .btn-options span {
@@ -255,7 +260,7 @@
 }
 
 .btn-options.active {
-    background-color: #444;
+    background-color: #444 !important;
 }
 
 .btn-options.active span {
@@ -264,8 +269,8 @@
 
 .btn-run {
     display: inline-block;
-    height: 33px;
-    width: 33px;
+    height: 34px;
+    width: 34px;
     margin: 8px 0px 7px 10px;
     border-radius: 16px;
     border: 1px solid #999;
@@ -300,14 +305,18 @@
 }
 
 .run-img {
+    background-image: url(img/run.png);
     height: 20px;
-    margin: 7px 0px 7px 2px;
+    width: 20px;
 }
 
 .paused-img {
+    background-image: url(img/stop.png);
     display: none;
-    height: 20px;
-    margin: 7px 0px 7px 0px;
+    height: 19px;
+    margin-left: -2px;
+    margin-top: 1px;
+    width: 19px;
 }
 
 .btn-run.uploading .run-img, .btn-run.running .run-img {
