@@ -390,6 +390,7 @@ CS50.Run.prototype.execute = function(commands) {
                 $prompt.width();
             $input.css({
                 "text-indent": indent,
+                "min-width": indent,
                 "margin-left": -indent
             });
             $prompt.replaceWith($prompt.text());
@@ -509,6 +510,7 @@ CS50.Run.prototype.newline = function($container, hidePrompt) {
             $prompt.width();
         $input.css({
             "text-indent": indent,
+            "min-width": indent,
             "margin-left": -indent
         });
         $prompt.replaceWith($prompt.text());
@@ -583,6 +585,7 @@ CS50.Run.prototype.upload = function(filename, commands) {
         $prompt.width();
     $input.css({
         "text-indent": indent,
+        "min-width": indent,
         "margin-left": -indent
     });
     $prompt.replaceWith($prompt.text());
