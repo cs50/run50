@@ -296,8 +296,7 @@ CS50.Run.prototype.createEditor = function() {
     $container.on('keypress', '.run50-input.active', function(e) {
         if (e.which == 13) {
             me.socket.emit('stdin', $(this).text() + "\n");
-            $(this).removeClass('active').attr('contenteditable', false);
-
+            $(this).removeClass('active').attr('contenteditable', false).after('\n');
             $console = $(this).parents('.run50-console');
             $console.append('<div class="run50-input active" contenteditable="true"></div>');
             $console.find('.run50-input.active').focus();
@@ -328,9 +327,8 @@ CS50.Run.prototype.execute = function(commands) {
         $status.text((commands.length) ? 'Building...' : 'Running...');
 
         // display command in console
-        $container.find('.run50-input.active').text(command).removeClass('active');
-        $container.find('.run50-console')
-            .append('<div class="run50-input active" contenteditable="true"></div>');
+        $container.find('.run50-input.active').text(command).removeClass('active').after('\n');
+        $container.find('.run50-console').append('<div class="run50-input active" contenteditable="true"></div>');
         $container.find('.run50-input.active').focus();
         this.scroll($container);
 
@@ -387,11 +385,13 @@ CS50.Run.prototype.execute = function(commands) {
             // prepend data, and adjust text indent to match
             var $prompt = $('<span>' + data + '</span>');
             var $input = $container.find('.run50-input.active').before($prompt);
-            $input.css('text-indent', 
-                $prompt.position().left - 
+            var indent = $prompt.position().left - 
                 parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
-                $prompt.width()
-            );
+                $prompt.width();
+            $input.css({
+                "text-indent": indent,
+                "margin-left": -indent
+            });
             $prompt.replaceWith($prompt.text());
             me.scroll($container);
         });
@@ -401,33 +401,26 @@ CS50.Run.prototype.execute = function(commands) {
         this.socket.on('stderr', function(data) {
 
             /* DJM: temporarily here until ANSI bug is resolved */
-            $container.find('.run50-input.active').before(data.toString());
-            me.scroll($container);
+            //$container.find('.run50-input.active').before(data.toString());
+            //me.scroll($container);
 
-            /* DJM: temporarily disabled until ANSI bug is resolved
+            //DJM: temporarily disabled until ANSI bug is resolved
             // if we get a valid ansi sequence, display the message
             buffer += data;           
             if (validANSI(buffer)) {
                 // get colored buffer and correct for newlines
-                var coloredHTML = ""; 
-                var colored = ansispan(buffer).split('</span>');
-                
-                // construct the coloring, with line breaks inserted
-                for (var i in colored) {
-                    coloredHTML += colored[i] + "</span>";
-                    if (colored[i].charAt(colored[i].length - 1) == "\r\n" || colored[i].charAt(colored[i].length - 1) == "\n")
-                        coloredHTML += "</br>";
-                }
-                
+                var colored = ansispan(buffer).replace(/\r\n<\/span>/g, "</span><br/>")
+                                .replace(/\n<\/span>/g, "</span><br/>")
+                                .replace(/<span>\r\n/g, "<br/><span>")
+                                .replace(/<span>\n/g, "<br/><span>");
+
                 // display error message
-                $container.find('.run50-input.active').before(coloredHTML);
+                $container.find('.run50-input.active').before(colored);
                 me.scroll($container);
-           
+                blah = colored;
                 // clear the buffer    
                 buffer = "";
             }
-            */
-
         });
 
         // send command to server
@@ -511,11 +504,13 @@ CS50.Run.prototype.newline = function($container, hidePrompt) {
     if (!hidePrompt) {
         var $prompt = $('<span>jharvard@run.cs50.org (~): </span>');
         $container.find('.run50-console').append($prompt);
-        $input.css('text-indent', 
-            $prompt.position().left - 
+        var indent = $prompt.position().left - 
             parseInt($(this.options.container).find('.run50-console').css('padding-left')) + 
-            $prompt.width()
-        );
+            $prompt.width();
+        $input.css({
+            "text-indent": indent,
+            "margin-left": -indent
+        });
         $prompt.replaceWith($prompt.text());
     }
     $container.find('.run50-console').append($input);
@@ -583,11 +578,13 @@ CS50.Run.prototype.upload = function(filename, commands) {
     // prepend prompt, compensate for spacing
     var $prompt = $('<span>jharvard@run.cs50.org (~): </span>');
     var $input = $(me.options.container).find('.run50-input.active').before($prompt);
-    $input.css('text-indent',
-        $prompt.position().left - 
+    var indent = $prompt.position().left - 
         parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
-        $prompt.width()
-    );
+        $prompt.width();
+    $input.css({
+        "text-indent": indent,
+        "margin-left": -indent
+    });
     $prompt.replaceWith($prompt.text());
 
     // update status bar

@@ -23,6 +23,7 @@ cat \
     js/lib/codemirror/search.js \
     js/lib/codemirror/xml.js \
     js/lib/socket.io.min.js \
+    js/lib/ansispan/ansispan.js \
     js/cs50.run.js \
     > build/cs50.run.min.js
 java -jar yuicompressor-2.4.7.jar -o build/cs50.run.min.js build/cs50.run.min.js

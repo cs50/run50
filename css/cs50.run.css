@@ -74,12 +74,14 @@
     background: none;
     border: none;
     color: white;
-    display: block;
+    display: inline-block;
     font-family: monospace;
     font-size: 13px;
-    margin-top: -20px;
     min-height: 20px;
     word-break: break-word;
+    min-width: 1px;
+    max-width: 100%;
+    vertical-align: top;
 }
 
 .run50-container .run50-console .run50-input:focus {

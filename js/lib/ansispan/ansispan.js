@@ -6,11 +6,11 @@ var ansispan = function (str) {
     // turn the matches into their span tag formats 
     for (var i in matches) {
         // if a segment doesn't happen to have an ansi sequence (the last one)
-        if (!matches[i].match(/\033\[.*m/))
+        if (!matches[i].match(/\033\[[^m]*m/))
             matches[i] = "<span>" + matches[i];
         // else apply the styles to the ansi sequence
         else {
-            matches[i] = matches[i].replace(/\033\[(.*)m/, function($1, $2) {
+            matches[i] = matches[i].replace(/\033\[([^m]*)m/, function($1, $2) {
                 var styles = $2.split(';');
                 var span = '<span style="';
                 for (var j in styles)
@@ -29,8 +29,8 @@ var ansispan = function (str) {
 var validANSI = function(str) {
     // split by ansi reset sequences. if the last thing in the array does not
     // have a reset ansi tag, then this string is composed of valid ansi   
-    var matches = str.split("\033\[0m") || [];
-    return !matches[matches.length - 1].match(/\033\[.*m/);
+    var matches = str.split("\033\[0m");
+    return !matches[matches.length - 1].match(/\033\[[^m]*m/);
 }
 
 ansispan.styles = {
