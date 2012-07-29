@@ -128,7 +128,6 @@
 
 /* Run50 Control Bar */
 .run50-controls {
-    height: 50px;
     background: #EEE;
     border-bottom: 1px solid #CCC;
     vertical-align: top;
@@ -180,48 +179,48 @@
 }
 
 .run50-options {
-    background: #F8F8F8;
-    border-radius: 0px 0px 0px 4px;
-    color: #333;
-    display: none;
+    border-top: 1px solid #CCC;
+    background: #444;
     font-family: monospace;
-    position: absolute;
-    right: 0px;
-    text-align: right;
-    top: 51px;
+    text-align: left;
     z-index: 11;
-    -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 3px;
-    -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 3px;
-    box-shadow: rgba(0, 0, 0, 0.4) 0 1px 3px;
+    position: relative;
+    display: none;
+    box-shadow: inset 0px 0px 5px rgba(0, 0, 0, .8);
 }
 
-.run50-options.active {
-    display: block;
+.run50-options:before {
+    position: absolute;
+    top: -20px;
+    left: 256px;
+    content: '';
+    border: 12px solid transparent;
+    border-bottom: 12px solid #444;
+    z-index: 2;
 }
 
-.run50-options input {
+.run50-options [contenteditable] {
     border: 0px;
-    border-left: 1px solid #EEE;
     font-size: 13px;
-    height: 40px;
     margin: 0px;
-    padding: 0px 10px;
+    padding: 5px 0px;
     outline: 0px;
-    width: 220px;
+    overflow: hidden;
+    color: #BBB;
 }
 
-.run50-options label {
+.run50-options [data-id-command] {
     display: inline-block;
-    height: 40px;
-    line-height: 40px;
-    margin-right: 5px;
-    margin-left: 20px;
-    text-shadow: 0px 1px 0px white;
+    float: left;
+    padding: 5px 10px;
+    margin-right: 0px;
+    text-shadow: 0px -1px 0px black;
+    color: #FFF;
 }
 
 .run50-options .divider {
     display: block;
-    border-bottom: 1px solid #DDD;
+    border-bottom: 1px solid #555;
 }
 
 .run50-options .divider:last-child {
@@ -229,36 +228,52 @@
 }
 
 .btn-options {
-    background: none !important;
-    float: right;
     display: inline-block;
     text-decoration: none;
-    padding: 15px 20px 15px 20px;
-    border-left: 1px solid #CCC;
-    border-top: none !important;
-    border-bottom: none !important;
-    border-right: none !important;
     cursor: pointer;
+    vertical-align: top;
+    margin: 15px 0px 13px 0px;
+    height: 21px;
+    width: 21px;
+    background-color: #ffffff;
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0 );   
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(20%, #ffffff), color-stop(50%, #f6f6f6), color-stop(52%, #eeeeee), color-stop(100%, #f4f4f4));
+    background-image: -webkit-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+    background-image: -moz-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+    background-image: -o-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+    background-image: -ms-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+    background-image: linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%); 
+    -webkit-border-radius: 5px;
+    -moz-border-radius   : 5px;
+    border-radius        : 5px;
+    border: 1px solid #aaaaaa;
+    -webkit-box-shadow: 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
+    -moz-box-shadow   : 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
+    box-shadow        : 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
 }
 
-.btn-options span {
-    display: inline-block;
-    vertical-align: middle;
-    font-size: 16px;
-    color: #333;
+.btn-options.active {
+    background-color: #333333;
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#333333', endColorstr='#444444', GradientType=0 );   
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(20%, #333333), color-stop(50%, #353535), color-stop(52%, #444444), color-stop(100%, #555555));
+    background-image: -webkit-linear-gradient(top, #333333 20%, #353535 50%, #444444 52%, #555555 100%);
+    background-image: -moz-linear-gradient(top, #333333 20%, #353535 50%, #444444 52%, #555555 100%);
+    background-image: -o-linear-gradient(top, #333333 20%, #353535 50%, #444444 52%, #555555 100%);
+    background-image: -ms-linear-gradient(top, #333333 20%, #353535 50%, #444444 52%, #555555 100%);
+    background-image: linear-gradient(top, #333333 20%, #353535 50%, #444444 52%, #555555 100%); 
+    -webkit-box-shadow: 0 0 3px #000000 inset, 0 1px 1px rgba(0,0,0,0.1);
+    -moz-box-shadow   : 0 0 3px #000000 inset, 0 1px 1px rgba(0,0,0,0.1);
+    box-shadow        : 0 0 3px #000000 inset, 0 1px 1px rgba(0,0,0,0.1);
 }
 
 .btn-options .gear-btn {
-    display: inline-block;
-    height: 20px;
-    width: 20px;
-    vertical-align: middle;
-    margin-right: 5px;
     background-image: url('img/gear.png');
+    height: 15px;
+    margin: 3px;
 }
 
 .btn-options.active .gear-btn {
-    background-position: 20px 0px;
+    background-position: 15px 0px;
 }
 
 .btn-options.active {
@@ -308,16 +323,18 @@
 
 .run-img {
     background-image: url(img/run.png);
+    background-position: 2px 2px;
     height: 20px;
     width: 20px;
 }
 
 .paused-img {
     background-image: url(img/stop.png);
+    background-position: 0px 2px;
     display: none;
     height: 19px;
-    margin-left: -2px;
-    margin-top: 1px;
+    margin-left: 0px;
+    margin-top: 0px;
     width: 19px;
 }
 

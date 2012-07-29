@@ -116,15 +116,14 @@ echo "Hello, run50!\\n";\n\
                             <% } %> \
                         </select>\
                     </div> \
-                    <button class="btn-options"> \
+                    <div class="btn-options"> \
                         <div class="gear-btn"></div> \
-                        <span>Command Line</span> \
-                    </button> \
-                    <div class="run50-options"></div> \
+                    </div> \
                     <div class="run50-status"> \
                         <span class="status-text"></span> \
                         <img class="status-loader" src="css/img/ajax-bar.gif"/> \
                     </div> \
+                    <div class="run50-options"></div> \
                 </div> \
                 <div class="run50-split-container"> \
                     <div class="run50-code-container"> \
@@ -139,8 +138,8 @@ echo "Hello, run50!\\n";\n\
         ',
 
         runOption: ' \
-            <label for="<%= cmd.command %>"><%= cmd.command %></label> \
-            <input id="<%= cmd.command %>" type="text" value="<%= cmd.args %>" /> \
+            <div data-id-command="<%= cmd.command %>"><%= cmd.command %></div> \
+            <div id="<%= cmd.command %>" type="text" contenteditable="true"><%= cmd.args %></div> \
             <div class="divider"></div> \
         '
     };
@@ -236,13 +235,34 @@ CS50.Run.prototype.createEditor = function() {
     // when options is moused over, display run options
     $container.on('click', '.btn-options', function() {
         $options = $container.find('.run50-options');
+    
+        // taken from SO: http://stackoverflow.com/questions/4233265/contenteditable-set-caret-at-the-end-of-the-text-cross-browser
+        function placeCaretAtEnd(el) {
+            el.focus();
+            if (typeof window.getSelection != "undefined"
+                    && typeof document.createRange != "undefined") {
+                var range = document.createRange();
+                range.selectNodeContents(el);
+                range.collapse(false);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } else if (typeof document.body.createTextRange != "undefined") {
+                var textRange = document.body.createTextRange();
+                textRange.moveToElementText(el);
+                textRange.collapse(false);
+                textRange.select();
+            }
+        }
 
         if ($options.is(":visible")) {
-            $container.find('.run50-options').removeClass('active');
+            $container.find('.run50-options').slideUp();
             $container.find('.btn-options').removeClass('active');
         }
         else {  
-            $container.find('.run50-options').addClass('active');
+            $container.find('.run50-options').slideDown(function() {
+                placeCaretAtEnd($(this).find('[contenteditable]').first()[0]);
+            })
             $container.find('.btn-options').addClass('active');
         }
     });
@@ -277,13 +297,13 @@ CS50.Run.prototype.createEditor = function() {
     });
 
     // when input is blurred, update args
-    $container.on('blur', '.run50-options input', function() {
+    $container.on('blur', '.run50-options [contenteditable]', function() {
         // determine which text input was changed
         var t = this;
-        $container.find('.run50-options input').each(function(i, e) {
+        $container.find('.run50-options [contenteditable]').each(function(i, e) {
             // update args value for the input
             if (t == this)
-                me.commands[me.language][i].args = $(this).val();
+                me.commands[me.language][i].args = $(this).text();
         });
     });
 
