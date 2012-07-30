@@ -598,7 +598,7 @@ CS50.Run.prototype.upload = function(filename, commands) {
     var me = this;
     
     // prepend prompt, compensate for spacing
-    var $prompt = $('<span>jharvard@run.cs50.org (~): </span>');
+    var $prompt = $('<span>jharvard@run.cs50.net (~): </span>');
     var $input = $(me.options.container).find('.run50-input.active').before($prompt);
     var indent = $prompt.position().left - 
         parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
