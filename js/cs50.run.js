@@ -523,7 +523,7 @@ CS50.Run.prototype.newline = function($container, hidePrompt) {
     // determine whether to display the prompt or not
     var $input = $('<div class="run50-input active" contenteditable="false"></div>');
     if (!hidePrompt) {
-        var $prompt = $('<span>jharvard@run.cs50.org (~): </span>');
+        var $prompt = $('<span>jharvard@run.cs50.net (~): </span>');
         $container.find('.run50-console').append($prompt);
         var indent = $prompt.position().left - 
             parseInt($(this.options.container).find('.run50-console').css('padding-left')) + 
