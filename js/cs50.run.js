@@ -315,6 +315,10 @@ CS50.Run.prototype.createEditor = function() {
     // when enter is pressed in the console, send to stdin
     $container.on('keypress', '.run50-input.active', function(e) {
         if (e.which == 13) {
+            // needed to prevent newline being inserted into active contenteditable
+            e.preventDefault();
+
+            // send input to stdin, create new content editable area
             me.socket.emit('stdin', $(this).text() + "\n");
             $(this).removeClass('active').attr('contenteditable', false).after('\n');
             $console = $(this).parents('.run50-console');
@@ -460,7 +464,7 @@ CS50.Run.prototype.execute = function(commands) {
  */
 CS50.Run.prototype.failure = function($container, code) {
     var me = this;
-   
+  
     // display error-specific text
     var text = 'An error occurred.';
     switch (code) {
@@ -477,11 +481,15 @@ CS50.Run.prototype.failure = function($container, code) {
             break;
 
         case 'E_USER_SERVER_DOWN':
+            // client side errors, include newline
             text = "CS50 Run seems to be down. Wait and try again?";
+            $container.find('.run50-input.active').before('\n');
             break;
 
         case 'E_USER_UPLOAD_ERROR':
+            // client side errors, include newline
             text = "Upload failed! Wait and try again?";
+            $container.find('.run50-input.active').before('\n');
             break;
     }
 
