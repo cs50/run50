@@ -483,13 +483,11 @@ CS50.Run.prototype.failure = function($container, code) {
         case 'E_USER_SERVER_DOWN':
             // client side errors, include newline
             text = "CS50 Run seems to be down. Wait and try again?";
-            $container.find('.run50-input.active').before('\n');
             break;
 
         case 'E_USER_UPLOAD_ERROR':
             // client side errors, include newline
             text = "Upload failed! Wait and try again?";
-            $container.find('.run50-input.active').before('\n');
             break;
     }
 
@@ -604,19 +602,6 @@ CS50.Run.prototype.scroll = function($container) {
  */
 CS50.Run.prototype.upload = function(filename, commands) {
     var me = this;
-    
-    // prepend prompt, compensate for spacing
-    var $prompt = $('<span>jharvard@run.cs50.net (~): </span>');
-    var $input = $(me.options.container).find('.run50-input.active').before($prompt);
-    var indent = $prompt.position().left - 
-        parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
-        $prompt.width();
-    $input.css({
-        "text-indent": indent,
-        "min-width": indent,
-        "margin-left": -indent
-    });
-    $prompt.replaceWith($prompt.text());
 
     // update status bar
     var $status = $(me.options.container).find('.run50-status .status-text');
@@ -651,6 +636,19 @@ CS50.Run.prototype.upload = function(filename, commands) {
         },
         // after file is uploaded, execute given commands
         success: function(data, textStatus, jqXHR) {
+            // prepend prompt, compensate for spacing
+            var $prompt = $('<span>jharvard@run.cs50.net (~): </span>');
+            var $input = $(me.options.container).find('.run50-input.active').before($prompt);
+            var indent = $prompt.position().left - 
+                parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
+                $prompt.width();
+            $input.css({
+                "text-indent": indent,
+                "min-width": indent,
+                "margin-left": -indent
+            });
+            $prompt.replaceWith($prompt.text());
+            
             // unbind manual upload abort event handler
             $runBtn.removeClass('uploading').addClass('running');
             me.sandbox = { homedir: data.id };
@@ -664,7 +662,7 @@ CS50.Run.prototype.upload = function(filename, commands) {
             }
             else {
                 me.failure($(me.options.container), 'E_USER_UPLOAD_ERROR');
-	    }
+            }
         },
         complete: function(jqXHR, textStatus) {
             // cleanup
