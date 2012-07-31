@@ -200,7 +200,7 @@ CS50.Run.prototype.createEditor = function() {
         // server is currently running, so stop
         if ($(this).hasClass('running')) {
             me.socket.emit('SIGINT');
-            $container.find('.run50-input.active').before('<br/>');        
+            $container.find('.run50-input.active').after('^C\n');        
         }
         // else, it was the play button, so trigger uploading
         // NOTE: upload cancelling is handled down in upload() since we need
@@ -216,10 +216,10 @@ CS50.Run.prototype.createEditor = function() {
     // catch ctrl-c and ctrl-d inside input
     $container.on('keyup', '.run50-input', function(e) {
         if (e.ctrlKey) {
-            // ctrl-c
+            // ctrl-c, inserts a newline
             if (e.which == 67) {
                 me.socket.emit('SIGINT');
-                $container.find('.run50-input.active').before('<br/>');        
+                $container.find('.run50-input.active').after('^C\n');        
             }
             else if (e.which == 68)
                 me.socket.emit('EOF');
@@ -524,7 +524,7 @@ CS50.Run.prototype.getCode = function() {
  */
 CS50.Run.prototype.newline = function($container, hidePrompt) {
     // create new input line
-    $container.find('.run50-input.active').remove();
+    $container.find('.run50-input.active').removeClass('active').attr('contenteditable', false);
 
     // determine whether to display the prompt or not
     var $input = $('<div class="run50-input active" contenteditable="false"></div>');
