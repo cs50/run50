@@ -74,8 +74,7 @@ CS50.Run = function(options) {
 #include <cs50.h>\n\
 #include <stdio.h>\n\
 \n\
-int\n\
-main(int argc, char *argv[])\n\
+int main(int argc, char* argv[])\n\
 {\n\
     printf("Enter your name: ");\n\
     string s = GetString();\n\
