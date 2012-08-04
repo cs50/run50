@@ -132,7 +132,7 @@
     border-bottom: 1px solid #CCC;
     vertical-align: top;
     position: relative;
-    height: 53px;
+    min-height: 53px;
 }
 
 .run50-status {
@@ -190,14 +190,16 @@
     box-shadow: inset 0px 0px 5px rgba(0, 0, 0, .8);
 }
 
-.run50-options:before {
+.run50-arrow {
     position: absolute;
-    top: -20px;
+    display: none;
+    top: 43px;
     left: 256px;
     content: '';
-    border: 12px solid transparent;
-    border-bottom: 12px solid #444;
-    z-index: 2;
+    height: 12px;
+    width: 24px;
+    background-image: url('img/run50-arrow.png');
+    z-index: 12;
 }
 
 .run50-options [contenteditable] {

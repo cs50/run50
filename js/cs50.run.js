@@ -122,6 +122,7 @@ echo "Hello, run50!\\n";\n\
                         <span class="status-text"></span> \
                         <img class="status-loader" src="css/img/ajax-bar.gif"/> \
                     </div> \
+                    <div class="run50-arrow"></div> \
                     <div class="run50-options"></div> \
                 </div> \
                 <div class="run50-split-container"> \
@@ -255,13 +256,17 @@ CS50.Run.prototype.createEditor = function() {
         }
 
         if ($options.is(":visible")) {
-            $container.find('.run50-options').slideUp();
+            $container.find('.run50-options').slideUp(150, function() {
+                $container.find('.run50-arrow').slideUp(50);
+            });
             $container.find('.btn-options').removeClass('active');
         }
         else {  
-            $container.find('.run50-options').slideDown(function() {
-                placeCaretAtEnd($(this).find('[contenteditable]').first()[0]);
-            })
+            $container.find('.run50-arrow').slideDown(50, function() {
+                $container.find('.run50-options').slideDown(150, function() {
+                    placeCaretAtEnd($(this).find('[contenteditable]').first()[0]);
+                })
+            });
             $container.find('.btn-options').addClass('active');
         }
     });
