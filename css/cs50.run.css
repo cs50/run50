@@ -190,18 +190,6 @@
     box-shadow: inset 0px 0px 5px rgba(0, 0, 0, .8);
 }
 
-.run50-arrow {
-    position: absolute;
-    display: none;
-    top: 43px;
-    left: 256px;
-    content: '';
-    height: 12px;
-    width: 24px;
-    background-image: url('img/run50-arrow.png');
-    z-index: 12;
-}
-
 .run50-options [contenteditable] {
     border: 0px;
     font-size: 13px;
