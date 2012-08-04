@@ -202,7 +202,7 @@ CS50.Run.prototype.createEditor = function() {
     $container.on('click', '.btn-run', function() {
         // server is currently running, so stop
         if ($(this).hasClass('running')) {
-            me.socket.emit('SIGINT');
+            me.socket.emit('SIGKILL');
             $container.find('.run50-input.active').after('^C\n');        
         }
         // else, it was the play button, so trigger uploading
