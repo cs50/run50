@@ -8,9 +8,7 @@ var CS50 = CS50 || {};
  *      container: DOM element into which editor will be loaded
  *      defaultLanguage: Language to start the editor off in (C, Java, PHP, Python, Ruby)
  *      endpoint: URL of CS50 Run's server
- *      height: Height of the editor, not including the console
  *      languages: Languages user can choose from (C, Java, PHP, Python, Ruby)
- *      width: Width of the editor
  *
  */
 CS50.Run = function(options) {
@@ -22,8 +20,9 @@ CS50.Run = function(options) {
 
     // define default options
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
-    this.options.endpoint = (options.endpoint === undefined) ? '' : options.endpoint.replace(/\/+$/, '');
+    this.options.endpoint = (options.endpoint === undefined) ? 'http://run.cs50.net:80/' : options.endpoint.replace(/\/+$/, '');
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
+    this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
 
     // map from mimes to commands necessary to run code
     this.commands = {
@@ -137,8 +136,8 @@ echo "Hello, run50!\\n";\n\
         ',
 
         runOption: ' \
-            <div data-id-command="<%= cmd.command %>"><%= cmd.command %></div> \
-            <div id="<%= cmd.command %>" type="text" contenteditable="true"><%= cmd.args %></div> \
+            <div data-id-command="<%= cmd.command %>" spellcheck="false"><%= cmd.command %></div> \
+            <div type="text" contenteditable="true" spellcheck="false"><%= cmd.args %></div> \
             <div class="divider"></div> \
         '
     };
@@ -277,6 +276,14 @@ CS50.Run.prototype.createEditor = function() {
                 height: "-=" + height
             }, 150);
             $container.find('.btn-options').addClass('active');
+        }
+    });
+
+    // prevent enter from being pressed in options dropdown
+    $container.on('keydown', '.run50-options div', function(e) {
+        if (e.which == 13) {
+            e.preventDefault();
+            return false;
         }
     });
 
@@ -542,7 +549,7 @@ CS50.Run.prototype.newline = function($container, hidePrompt) {
     // determine whether to display the prompt or not
     var $input = $('<div class="run50-input active" contenteditable="false"></div>');
     if (!hidePrompt) {
-        var $prompt = $('<span>jharvard@run.cs50.net (~): </span>');
+        var $prompt = $('<span>' + this.options.prompt + ' </span>');
         $container.find('.run50-console').append($prompt);
         var indent = $prompt.position().left - 
             parseInt($(this.options.container).find('.run50-console').css('padding-left')) + 
@@ -650,7 +657,7 @@ CS50.Run.prototype.upload = function(filename, commands) {
         // after file is uploaded, execute given commands
         success: function(data, textStatus, jqXHR) {
             // prepend prompt, compensate for spacing
-            var $prompt = $('<span>jharvard@run.cs50.net (~): </span>');
+            var $prompt = $('<span>' + me.options.prompt + ' </span>');
             var $input = $(me.options.container).find('.run50-input.active').before($prompt);
             var indent = $prompt.position().left - 
                 parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
