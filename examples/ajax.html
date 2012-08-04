@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <script src="jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+        $(document).ready(function() {
+
+            // upon form's submission
+            $('#form').submit(function() {
+
+                // clear placeholders
+                $('#code').html('');
+                $('#stderr').html('');
+                $('#stdout').html('');
+
+                // upload src.c
+                $.ajax({
+                 data: {
+                  'src.c': $('#src').val()
+                 },
+
+                 // upon successful upload
+                 success: function(data, textStatus, jqXHR) {
+
+                    // remember upload's ID
+                    var id = data.id;
+
+                    // run cmd
+                    $.ajax({
+                     data: {
+                      cmd: $('#cmd1').val(),
+                      sandbox: {
+                       homedir: id
+                      }
+                     },
+
+                     // error
+                     error: function(jqXHR, textStatus, errorThrown) {
+                         console.log('error1');
+                         var data = $.parseJSON(jqXHR.responseText);
+                         $('#code1').text(data.code).html();
+                         $('#stdout1').text(data.stdout).html();
+                         $('#stderr1').text(data.stderr).html();
+                     },
+
+                     // success
+                     success: function(data, textStatus, jqXHR) {
+
+                         console.log('success1');
+                         $('#code1').text(data.code).html();
+                         $('#stdout1').text(data.stdout).html();
+                         $('#stderr1').text(data.stderr).html();
+
+                        // run cmd
+                        $.ajax({
+                         data: {
+                          cmd: $('#cmd2').val(),
+                          sandbox: data.sandbox
+                         },
+
+                         // error
+                         error: function(jqXHR, textStatus, errorThrown) {
+                             console.log('error2');
+                             var data = $.parseJSON(jqXHR.responseText);
+                             $('#code2').text(data.code).html();
+                             $('#stdout2').text(data.stdout).html();
+                             $('#stderr2').text(data.stderr).html();
+                         },
+ 
+                         // success
+                         success: function(data, textStatus, jqXHR) {
+                             console.log('success2');
+                             $('#code2').text(data.code).html();
+                             $('#stdout2').text(data.stdout).html();
+                             $('#stderr2').text(data.stderr).html();
+                         },
+
+                         type: 'post',
+                         url: '/run'
+                        });
+
+                     },
+
+                     type: 'post',
+                     url: '/run'
+                    });
+                 },
+
+                 type: 'post',
+                 url: '/upload'
+                });
+
+                // don't submit form in the usual way
+                return false;
+
+            });
+
+        });
+      </script>
+    <title>CS50 Run</title>
+  </head>
+  <body>
+    <form id="form">
+      src: <textarea cols="80" id="src" name="src.c" rows="16" style="font-family: monospace">#include <stdio.h>
+
+int
+main(void)
+{
+    printf("hello, world\n");
+}</textarea>
+      <br><br>
+      cmd 1: <input id="cmd1" style="width: 300px" type="text" value="clang src.c">
+      <br>
+      cmd 2: <input id="cmd2" style="width: 300px" type="text" value="./a.out">
+      <br>
+      <input type="submit" value="run">
+      <br><br>
+      exit code 1: <div id="code1"></div>
+      <br><br>
+      stdout 1: <div id="stdout1"></div>
+      <br><br>
+      stderr 1: <div id="stderr1"></div>
+      <br><br>
+      <hr>
+      <br><br>
+      exit code 2: <div id="code2"></div>
+      <br><br>
+      stdout 2: <div id="stdout2"></div>
+      <br><br>
+      stderr 2: <div id="stderr2"></div>
+    </form>
+  </body>
+</html>
