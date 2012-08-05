@@ -22,6 +22,7 @@ CS50.Run = function(options) {
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
     this.options.endpoint = (options.endpoint === undefined) ? 'http://run.cs50.net:80' : options.endpoint.replace(/\/+$/, '');
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
+    this.options.onCreate = (options.onCreate === undefined) ? new Function : options.onCreate;
     this.options.onSave = (options.onSave === undefined) ? new Function : options.onSave;
     this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
 
@@ -382,6 +383,8 @@ CS50.Run.prototype.createEditor = function() {
         }
     });
 
+    // trigger creation callback
+    this.options.onCreate(this);
 };
 
 /**
