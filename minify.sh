@@ -7,7 +7,6 @@ echo "Building JavaScript..."
 cat \
     js/lib/jquery-ui-1.8.21.custom.min.js \
     js/lib/underscore-min.js \
-    js/lib/chosen/chosen.jquery.min.js \
     js/lib/codemirror/codemirror.js \
     js/lib/codemirror/formatting.js \
     js/lib/codemirror/dialog.js \
@@ -33,7 +32,6 @@ cat \
     css/lib/jquery-ui-1.8.21.custom.css \
     css/lib/codemirror.css \
     css/lib/codemirror-dialog.css \
-    css/lib/chosen.css \
     css/cs50.run.css \
     > build/cs50.run.min.css
 java -jar yuicompressor-2.4.7.jar -o build/cs50.run.min.css build/cs50.run.min.css

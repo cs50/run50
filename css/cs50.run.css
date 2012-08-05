@@ -38,6 +38,10 @@
     position: relative;
 }
 
+.run50-container .form-download {
+    display: none;
+}
+
 .run50-container .run50-console-container {
     background: #222;
     color: white;

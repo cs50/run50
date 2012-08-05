@@ -26,9 +26,8 @@ CS50.Run = function(options) {
     this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
 
     // ensure endpoint specifies a port (else socket.io assumes server is on same port as client, even if on different host)
-    if (!this.options.endpoint.match(/:\d+$/)) {
+    if (!this.options.endpoint.match(/:\d+$/))
         this.options.endpoint += ':80';
-    }
 
     // map from mimes to commands necessary to run code
     this.commands = {
@@ -108,6 +107,9 @@ echo "Hello, run50!\\n";\n\
     var templateHtml = {
         editor: ' \
             <div class="run50-container"> \
+                <form class="form-download" method="post" action="<%= endpoint %>/save"> \
+                    <input type="hidden" /> \
+                </form> \
                 <div class="run50-controls"> \
                     <button class="btn-run"> \
                        <div class="run-img"></div> \
@@ -168,6 +170,7 @@ CS50.Run.prototype.createEditor = function() {
     var $container = $(this.options.container);
     $container.html(this.templates.editor({
         defaultLanguage: this.options.defaultLanguage,
+        endpoint :this.options.endpoint,
         languages: this.options.languages,
         languageNames: this.languageNames,
         samples: this.samples
@@ -224,6 +227,11 @@ CS50.Run.prototype.createEditor = function() {
         me.save();
     });
 
+    // when download button is pressed, download the current contents of the editor
+    $container.on('click', '.btn-download', function() {
+        me.download();
+    });
+
     // catch ctrl-c and ctrl-d inside input
     $container.on('keyup', '.run50-input', function(e) {
         if (e.ctrlKey) {
@@ -241,11 +249,21 @@ CS50.Run.prototype.createEditor = function() {
             return false;
     });
 
+    // if we have a history at this URL, load it
+    var history = this.getHistory();
+    if (history.length) {
+        this.setCode(history[0].content);
+        this.setLanguage(history[0].language);
+    }
+
+    // no history, so load default language
+    else
+        this.setLanguage(this.languageNames[this.options.defaultLanguage]);
+
     // when language is changed, load relevant mode file
     $container.on('change', '.run50-lang', function() {
         me.setLanguage($(this).val());
     });
-    me.setLanguage(this.languageNames[this.options.defaultLanguage]);
 
     // when options is moused over, display run options
     $container.on('click', '.btn-options', function() {
@@ -364,12 +382,20 @@ CS50.Run.prototype.createEditor = function() {
         }
     });
 
-    // if we have something saved in the history, load it
-    var history = this.getHistory();
-    if (history.length) {
-        this.setCode(history[0].content);
-        this.setLanguage(history[0].language);
-    }
+};
+
+/**
+ * Download the current contents of the editor as a text file
+ *
+ */
+CS50.Run.prototype.download = function() {
+    // get download form
+    var $form = $(this.options.container).find('.form-download');
+
+    // set input attributes to file/contents pair and trigger download
+    $form.find('input').attr('name', 'file.' + this.extensions[this.language])
+        .attr('value', this.getCode());
+    $form.submit();
 };
 
 /**
@@ -561,14 +587,6 @@ CS50.Run.prototype.getCode = function() {
 };
 
 /**
- * Get the editor's current language
- *
- */
-CS50.Run.prototype.getLanguage = function() {
-    return this.language;
-}
-
-/**
  * Get the editor's save history 
  *
  */
@@ -645,7 +663,7 @@ CS50.Run.prototype.save = function() {
     // add content at this timestamp to history
     history.unshift({ 
         content: this.getCode(),
-        language: this.getLanguage(),
+        language: this.language,
         timestamp: (new Date()).toString()
     });
 
@@ -653,7 +671,7 @@ CS50.Run.prototype.save = function() {
     this.setHistory(history);
 
     // execute callback
-    this.options.onSave(this.getLanguage(), this.getCode());
+    this.options.onSave(this.language, this.getCode());
 };
 
 /**
@@ -682,17 +700,17 @@ CS50.Run.prototype.setHistory = function(history) {
  * Change the editor's language
  *
  * @param mime MIME type of new language
+ * @param dropdown If false, then reload the dropdown based on mime
  *
  */
-CS50.Run.prototype.setLanguage = function(mime) {
+CS50.Run.prototype.setLanguage = function(mime, dropdown) {
     var $container = $(this.options.container);
 
     // update editor language
     this.language = mime;
     this.editor.setOption('mode', mime);
 
-    // update language dropdown
-    $container.find('.run50-lang').val(mime).chosen().trigger('liszt:updated');
+    $container.find('.run50-lang').val(mime);
 
     // update options menu
     var me = this;
