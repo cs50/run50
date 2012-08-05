@@ -7,6 +7,7 @@ echo "Building JavaScript..."
 cat \
     js/lib/jquery-ui-1.8.21.custom.min.js \
     js/lib/underscore-min.js \
+    js/lib/date.js \
     js/lib/codemirror/codemirror.js \
     js/lib/codemirror/formatting.js \
     js/lib/codemirror/dialog.js \
