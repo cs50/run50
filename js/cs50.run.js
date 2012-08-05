@@ -22,6 +22,7 @@ CS50.Run = function(options) {
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
     this.options.endpoint = (options.endpoint === undefined) ? 'http://run.cs50.net:80' : options.endpoint.replace(/\/+$/, '');
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
+    this.options.onSave = (options.onSave === undefined) ? new Function : options.onSave;
     this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
 
     // ensure endpoint specifies a port (else socket.io assumes server is on same port as client, even if on different host)
@@ -122,6 +123,8 @@ echo "Hello, run50!\\n";\n\
                     <div class="btn-options"> \
                         <div class="gear-btn"></div> \
                     </div> \
+                    <a href="#" class="btn-save">Save</a> \
+                    <a href="#" class="btn-download">Download</a> \
                     <div class="run50-status"> \
                         <span class="status-text"></span> \
                         <img class="status-loader" src="css/img/ajax-bar.gif"/> \
@@ -216,6 +219,11 @@ CS50.Run.prototype.createEditor = function() {
         }
     });
 
+    // when save is pressed, save the current contents into session storage
+    $container.on('click', '.btn-save', function() {
+        me.save();
+    });
+
     // catch ctrl-c and ctrl-d inside input
     $container.on('keyup', '.run50-input', function(e) {
         if (e.ctrlKey) {
@@ -227,13 +235,17 @@ CS50.Run.prototype.createEditor = function() {
             else if (e.which == 68)
                 me.socket.emit('EOF');
         }
+
+        // override tab key
+        if (e.which == 9)
+            return false;
     });
 
     // when language is changed, load relevant mode file
     $container.on('change', '.run50-lang', function() {
         me.setLanguage($(this).val());
     });
-    $container.find('.run50-lang').val(this.languageNames[this.options.defaultLanguage]).chosen().trigger('change');
+    me.setLanguage(this.languageNames[this.options.defaultLanguage]);
 
     // when options is moused over, display run options
     $container.on('click', '.btn-options', function() {
@@ -351,6 +363,13 @@ CS50.Run.prototype.createEditor = function() {
             $console.find('.run50-input.active').focus();
         }
     });
+
+    // if we have something saved in the history, load it
+    var history = this.getHistory();
+    if (history.length) {
+        this.setCode(history[0].content);
+        this.setLanguage(history[0].language);
+    }
 };
 
 /**
@@ -531,7 +550,7 @@ CS50.Run.prototype.failure = function($container, code) {
 
     // create new console line without prompt
     me.newline($container, true);
-}
+};
 
 /**
  * Get the code currently loaded into the editor
@@ -539,7 +558,36 @@ CS50.Run.prototype.failure = function($container, code) {
  */
 CS50.Run.prototype.getCode = function() {
     return this.editor.getValue();
+};
+
+/**
+ * Get the editor's current language
+ *
+ */
+CS50.Run.prototype.getLanguage = function() {
+    return this.language;
 }
+
+/**
+ * Get the editor's save history 
+ *
+ */
+CS50.Run.prototype.getHistory = function() {
+    var session = sessionStorage[this.getNamespace()];
+    if (!session)
+        return [];
+
+    session = JSON.parse(session);
+    return (session && session.history) ? session.history : [];
+};
+
+/**
+ * Get the string used to namespace sessionStorage
+ *
+ */
+CS50.Run.prototype.getNamespace = function() {
+    return window.location.href.replace(/#/g, '');
+};
 
 /**
  * Reusable function for creating a new input line and scrolling to it
@@ -570,7 +618,7 @@ CS50.Run.prototype.newline = function($container, hidePrompt) {
     
     // scroll to bottom of container
     this.scroll($container);
-}
+};
 
 /**
  * Run the current editor contents
@@ -587,6 +635,50 @@ CS50.Run.prototype.run = function() {
 };
 
 /**
+ * Save the current state of the editor in sessionStorage, namespaced by the current url
+ *
+ */
+CS50.Run.prototype.save = function() {
+    // get current history
+    var history = this.getHistory();
+
+    // add content at this timestamp to history
+    history.unshift({ 
+        content: this.getCode(),
+        language: this.getLanguage(),
+        timestamp: (new Date()).toString()
+    });
+
+    // save history
+    this.setHistory(history);
+
+    // execute callback
+    this.options.onSave(this.getLanguage(), this.getCode());
+};
+
+/**
+ * Get the code currently loaded into the editor
+ *
+ */
+CS50.Run.prototype.setCode = function(value) {
+    this.editor.setValue(value);
+};
+
+/**
+ * Set the editor's save history 
+ *
+ */
+CS50.Run.prototype.setHistory = function(history) {
+    // get the current session
+    var session = sessionStorage[this.getNamespace()];
+    session = (session) ? JSON.parse(session) : {};
+
+    // set history property and save to sessionStorage
+    session['history'] = history;
+    sessionStorage[this.getNamespace()] = JSON.stringify(session);
+};
+
+/**
  * Change the editor's language
  *
  * @param mime MIME type of new language
@@ -598,6 +690,9 @@ CS50.Run.prototype.setLanguage = function(mime) {
     // update editor language
     this.language = mime;
     this.editor.setOption('mode', mime);
+
+    // update language dropdown
+    $container.find('.run50-lang').val(mime).chosen().trigger('liszt:updated');
 
     // update options menu
     var me = this;
@@ -617,7 +712,7 @@ CS50.Run.prototype.setLanguage = function(mime) {
  */
 CS50.Run.prototype.scroll = function($container) {
     $container.find('.run50-console').scrollTop(999999);
-}
+};
 
 /**
  * Upload a file, then execute the given commands
