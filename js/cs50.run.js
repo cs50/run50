@@ -661,8 +661,10 @@ CS50.Run.prototype.save = function() {
     var history = this.getHistory();
 
     // add content at this timestamp to history
+    var file = 'file.' + this.extensions[this.language];
     history.unshift({ 
         content: this.getCode(),
+        file: file,
         language: this.language,
         timestamp: (new Date()).toString()
     });
@@ -671,7 +673,7 @@ CS50.Run.prototype.save = function() {
     this.setHistory(history);
 
     // execute callback
-    this.options.onSave(this.language, this.getCode());
+    this.options.onSave(this.language, file, this.getCode());
 };
 
 /**
