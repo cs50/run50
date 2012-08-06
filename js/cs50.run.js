@@ -720,7 +720,8 @@ CS50.Run.prototype.save = function() {
     });
 
     // append to list
-    var $list = $(this.options.container).find('.run50-history');
+    var $container = $(this.options.container);
+    var $list = $container.find('.run50-history');
     var html = this.templates.historyItem({
         item: history[0]
     });
@@ -729,6 +730,14 @@ CS50.Run.prototype.save = function() {
     // mark first as active
     $list.find('.active').removeClass('active');
     $list.find('.history-item:first-child').addClass('active');
+    
+    // display success message and message
+    $container.find('.run50-status .status-text').text("Save successful!");
+    $container.find('.run50-status').addClass('success');
+    setTimeout(function() {
+        $container.find('.run50-status .status-text').text("");
+        $container.find('.run50-status').removeClass('error success');
+    }, 2000);
 
     // save history
     this.setHistory(history);
