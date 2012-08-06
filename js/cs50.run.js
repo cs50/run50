@@ -194,6 +194,7 @@ CS50.Run.prototype.createEditor = function() {
     // callback to be called after editor is created
     function afterCreate() {
         $container.show();
+        $(window).trigger('resize');
     }
 
     // hide container while it is constructed
