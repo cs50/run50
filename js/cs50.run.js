@@ -188,9 +188,18 @@ echo "Hello, run50!\\n";\n\
  *
  */
 CS50.Run.prototype.createEditor = function() {
-    // add textarea to div
     var me = this;
     var $container = $(this.options.container);
+
+    // callback to be called after editor is created
+    function afterCreate() {
+        $container.show();
+    }
+
+    // hide container while it is constructed
+    $container.hide();
+
+    // create run container
     $container.html(this.templates.editor({
         defaultLanguage: this.options.defaultLanguage,
         endpoint :this.options.endpoint,
@@ -415,7 +424,7 @@ CS50.Run.prototype.createEditor = function() {
 
     // if creation callback given, execute it
     if (this.options.onCreate)
-        this.options.onCreate(this);
+        this.options.onCreate(this, afterCreate);
 
     // no handler given, so run default behavior
     else {
@@ -433,6 +442,8 @@ CS50.Run.prototype.createEditor = function() {
         // no history, so load default language
         else
             this.setLanguage(this.languageNames[this.options.defaultLanguage]);
+
+        afterCreate();
     }
 };
 
