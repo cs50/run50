@@ -22,8 +22,8 @@ CS50.Run = function(options) {
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
     this.options.endpoint = (options.endpoint === undefined) ? 'http://run.cs50.net:80' : options.endpoint.replace(/\/+$/, '');
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
-    this.options.loadFromHistory = (options.loadFromHistory === undefined) ? false : options.loadFromHistory;
     this.options.onCreate = (options.onCreate === undefined) ? new Function : options.onCreate;
+    this.options.onLoadFromHistory = (options.onLoadFromHistory === undefined) ? false : options.onLoadFromHistory;
     this.options.onSave = (options.onSave === undefined) ? new Function : options.onSave;
     this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
 
@@ -257,20 +257,7 @@ CS50.Run.prototype.createEditor = function() {
 
     // load history when history item is clicked on
     $container.on('click', '.run50-history .history-item', function() {
-        // use custom history loader if defined
-        if (me.options.loadFromHistory)
-            me.options.loadFromHistory($(this).index());
-
-        // assume content and language already exist
-        else {
-            var history = me.getHistory();
-            me.setCode(history[$(this).index()].content);
-            me.setLanguage(history[$(this).index()].language);
-        }
-    
-        // mark this as the current one
-        $container.find('.run50-history .active').removeClass('active');
-        $(this).addClass('active');
+        me.loadFromHistory($(this).index());
     });
 
     // toggle history
@@ -278,7 +265,9 @@ CS50.Run.prototype.createEditor = function() {
         if ($(this).is('.active')) {
             $(this).removeClass('active');
             $container.find('.run50-history-wrapper').hide();
-        } else {
+        } 
+        
+        else {
             $(this).addClass('active');
             $container.find('.run50-history-wrapper').show();
         }
@@ -582,6 +571,30 @@ CS50.Run.prototype.execute = function(commands) {
             sandbox: this.sandbox
         });
     }
+};
+
+/**
+ * Load a revision from the history
+ *
+ * @param index {Number} Index into history list to load from
+ *
+ */
+CS50.Run.prototype.loadFromHistory = function(index) {
+    // use custom history loader if defined
+    if (this.options.onLoadFromHistory)
+        this.options.onLoadFromHistory(index);
+
+    // assume content and language already exist
+    else {
+        var history = this.getHistory();
+        this.setCode(history[index].content);
+        this.setLanguage(history[index].language);
+    }
+
+    // mark this as the current one
+    var $container = $(this.options.container);
+    $container.find('.run50-history .active').removeClass('active');
+    $container.find('.run50-history li:nth-child(' + parseInt(index + 1) + ')').addClass('active');
 };
 
 /**
