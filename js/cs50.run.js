@@ -140,7 +140,7 @@ echo "Hello, run50!\\n";\n\
                     </div> \
                     <div class="run50-status"> \
                         <span class="status-text"></span> \
-                        <img class="status-loader" src="css/img/ajax-bar.gif"/> \
+                        <img class="status-loader" src="css/img/ajax-bar.gif" /> \
                     </div> \
                     <div class="run50-options"></div> \
                 </div> \
