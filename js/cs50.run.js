@@ -22,9 +22,9 @@ CS50.Run = function(options) {
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
     this.options.endpoint = (options.endpoint === undefined) ? 'http://run.cs50.net:80' : options.endpoint.replace(/\/+$/, '');
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
-    this.options.onCreate = (options.onCreate === undefined) ? new Function : options.onCreate;
+    this.options.onCreate = (options.onCreate === undefined) ? false : options.onCreate;
     this.options.onLoadFromHistory = (options.onLoadFromHistory === undefined) ? false : options.onLoadFromHistory;
-    this.options.onSave = (options.onSave === undefined) ? new Function : options.onSave;
+    this.options.onSave = (options.onSave === undefined) ? false : options.onSave;
     this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
 
     // ensure endpoint specifies a port (else socket.io assumes server is on same port as client, even if on different host)
@@ -290,21 +290,6 @@ CS50.Run.prototype.createEditor = function() {
             return false;
     });
 
-    // if we have a history at this URL, load it
-    var history = this.getHistory();
-    if (history.length && history[0].content && history[0].language) {
-        this.renderHistory(history);
-        this.setCode(history[0].content);
-        this.setLanguage(history[0].language);
-        
-        // mark first as active
-        $container.find('.run50-history .history-item:first-child').addClass('active');
-    }
-
-    // no history, so load default language
-    else
-        this.setLanguage(this.languageNames[this.options.defaultLanguage]);
-
     // when language is changed, load relevant mode file
     $container.on('change', '.run50-lang', function() {
         me.setLanguage($(this).val());
@@ -345,6 +330,7 @@ CS50.Run.prototype.createEditor = function() {
             }, 150);
             $container.find('.btn-options').removeClass('active');
         }
+
         else {  
             $container.find('.run50-options').slideDown(150, function() {
                 placeCaretAtEnd($(this).find('[contenteditable]').first()[0]);
@@ -427,8 +413,27 @@ CS50.Run.prototype.createEditor = function() {
         }
     });
 
-    // trigger creation callback
-    this.options.onCreate(this);
+    // if creation callback given, execute it
+    if (this.options.onCreate)
+        this.options.onCreate(this);
+
+    // no handler given, so run default behavior
+    else {
+        // if we have a history at this URL, load it
+        var history = this.getHistory();
+        if (history.length && history[0].content && history[0].language) {
+            this.renderHistory(history);
+            this.setCode(history[0].content);
+            this.setLanguage(history[0].language);
+            
+            // mark first as active
+            $container.find('.run50-history .history-item:first-child').addClass('active');
+        }
+
+        // no history, so load default language
+        else
+            this.setLanguage(this.languageNames[this.options.defaultLanguage]);
+    }
 };
 
 /**
@@ -728,36 +733,51 @@ CS50.Run.prototype.run = function() {
  *
  */
 CS50.Run.prototype.save = function() {
-    // get current history
-    var history = this.getHistory();
+    var me = this;
 
-    // add content at this timestamp to history
+    // callback called after saving file
+    function afterSave() {
+        // mark first as active
+        var $list = $(me.options.container).find('.run50-history');
+        $list.find('.active').removeClass('active');
+        $list.find('.history-item:first-child').addClass('active');
+    }
+
+    // determine file to be saved
     var file = 'file.' + this.extensions[this.language];
-    history.unshift({ 
-        content: this.getCode(),
-        file: file,
-        language: this.language,
-        timestamp: (new Date()).toString(),
-    });
 
-    // mark first as active
-    var $list = $(this.options.container).find('.run50-history');
-    $list.find('.active').removeClass('active');
-    $list.find('.history-item:first-child').addClass('active');
-    
+    // if save handler defined, then use that
+    if (this.options.onSave)
+        this.options.onSave(this.language, file, this.getCode(), afterSave);
+
+    // no handler defined, so use default
+    else {
+        // get current history
+        var history = this.getHistory();
+
+        // add content at this timestamp to history
+        history.unshift({ 
+            content: this.getCode(),
+            file: file,
+            language: this.language,
+            timestamp: (new Date()).toString(),
+        });
+
+        // save history
+        this.setHistory(history);
+
+        // execute callback
+        afterSave();
+    }
+
     // display success message and message
+    var $container = $(this.options.container);
     $container.find('.run50-status .status-text').text("Save successful!");
     $container.find('.run50-status').addClass('success');
     setTimeout(function() {
         $container.find('.run50-status .status-text').text("");
         $container.find('.run50-status').removeClass('error success');
     }, 2000);
-
-    // save history
-    this.setHistory(history);
-
-    // execute callback
-    this.options.onSave(this.language, file, this.getCode());
 };
 
 /**
