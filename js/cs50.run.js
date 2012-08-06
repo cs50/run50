@@ -22,6 +22,7 @@ CS50.Run = function(options) {
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
     this.options.endpoint = (options.endpoint === undefined) ? 'http://run.cs50.net:80' : options.endpoint.replace(/\/+$/, '');
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
+    this.options.loadFromHistory = (options.loadFromHistory === undefined) ? false : options.loadFromHistory;
     this.options.onCreate = (options.onCreate === undefined) ? new Function : options.onCreate;
     this.options.onSave = (options.onSave === undefined) ? new Function : options.onSave;
     this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
@@ -256,9 +257,16 @@ CS50.Run.prototype.createEditor = function() {
 
     // load history when history item is clicked on
     $container.on('click', '.run50-history .history-item', function() {
-        var history = me.getHistory();
-        me.setCode(history[$(this).index()].content);
-        me.setLanguage(history[$(this).index()].language);
+        // use custom history loader if defined
+        if (me.options.loadFromHistory)
+            me.options.loadFromHistory($(this).index());
+
+        // assume content and language already exist
+        else {
+            var history = me.getHistory();
+            me.setCode(history[$(this).index()].content);
+            me.setLanguage(history[$(this).index()].language);
+        }
     
         // mark this as the current one
         $container.find('.run50-history .active').removeClass('active');
@@ -295,7 +303,7 @@ CS50.Run.prototype.createEditor = function() {
 
     // if we have a history at this URL, load it
     var history = this.getHistory();
-    if (history.length) {
+    if (history.length && history[0].content && history[0].language) {
         this.renderHistory(history);
         this.setCode(history[0].content);
         this.setLanguage(history[0].language);
@@ -719,15 +727,8 @@ CS50.Run.prototype.save = function() {
         timestamp: (new Date()).toString(),
     });
 
-    // append to list
-    var $container = $(this.options.container);
-    var $list = $container.find('.run50-history');
-    var html = this.templates.historyItem({
-        item: history[0]
-    });
-    $list.prepend(html);
-        
     // mark first as active
+    var $list = $(this.options.container).find('.run50-history');
     $list.find('.active').removeClass('active');
     $list.find('.history-item:first-child').addClass('active');
     
@@ -766,6 +767,12 @@ CS50.Run.prototype.setHistory = function(history) {
     // set history property and save to sessionStorage
     session['history'] = history;
     sessionStorage[this.getNamespace()] = JSON.stringify(session);
+
+    // re-render history
+    this.renderHistory(history);
+
+    // mark first as active
+    $(this.options.container).find('.run50-history .history-item:first-child').addClass('active');
 };
 
 /**
@@ -775,6 +782,7 @@ CS50.Run.prototype.setHistory = function(history) {
 CS50.Run.prototype.renderHistory = function(history) {
     var me = this;
     var $list = $(this.options.container).find('.run50-history');
+    $list.empty();
     $.each(history, function(i, item) {
         var html = me.templates.historyItem({
             item: item
@@ -859,6 +867,7 @@ CS50.Run.prototype.upload = function(filename, commands) {
                 }
             }, 10000);
         },
+
         // after file is uploaded, execute given commands
         success: function(data, textStatus, jqXHR) {
             // prepend prompt, compensate for spacing
@@ -879,6 +888,7 @@ CS50.Run.prototype.upload = function(filename, commands) {
             me.sandbox = { homedir: data.id };
             me.execute(commands);
         },
+
         error: function(data, txtStatus, jqXHR) {
             // handle different errors
             var error;
@@ -889,6 +899,7 @@ CS50.Run.prototype.upload = function(filename, commands) {
                 me.failure($(me.options.container), 'E_USER_UPLOAD_ERROR');
             }
         },
+
         complete: function(jqXHR, textStatus) {
             // cleanup
             $runBtn.unbind('click', abortUpload);
