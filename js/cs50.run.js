@@ -170,9 +170,6 @@ echo "Hello, run50!\\n";\n\
                 <div class="timestamp"> \
                     <%= new Date(item.timestamp).toString("ddd, MMM d yyyy, h:mm tt") %> \
                 </div> \
-                <div class="author"> \
-                    <%= item.author %> \
-                </div> \
             </li> \
         '
     };
@@ -720,7 +717,6 @@ CS50.Run.prototype.save = function() {
         file: file,
         language: this.language,
         timestamp: (new Date()).toString(),
-        author: "Joseph Ong"
     });
 
     // append to list
