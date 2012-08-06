@@ -126,13 +126,26 @@ echo "Hello, run50!\\n";\n\
                     <div class="btn-options"> \
                         <div class="gear-btn"></div> \
                     </div> \
-                    <a href="#" class="btn-save">Save</a> \
-                    <a href="#" class="btn-download">Download</a> \
+                    <div class="btn-history-group"> \
+                        <button class="btn-download"> \
+                            <div class="download-icon"></i> \
+                        </button> \
+                        <button class="btn-save"> \
+                            <div class="save-icon"></i> \
+                        </button> \
+                        <button class="btn-history"> \
+                            <div class="history-icon"></i> \
+                        </button> \
+                    </div> \
                     <div class="run50-status"> \
                         <span class="status-text"></span> \
                         <img class="status-loader" src="css/img/ajax-bar.gif"/> \
                     </div> \
                     <div class="run50-options"></div> \
+                </div> \
+                <div class="run50-history-wrapper"> \
+                    <ul class="run50-history"> \
+                    </ul> \
                 </div> \
                 <div class="run50-split-container"> \
                     <div class="run50-code-container"> \
@@ -150,6 +163,17 @@ echo "Hello, run50!\\n";\n\
             <div data-id-command="<%= cmd.command %>" spellcheck="false"><%= cmd.command %></div> \
             <div type="text" contenteditable="true" spellcheck="false"><%= cmd.args %></div> \
             <div class="divider"></div> \
+        ',
+
+        historyItem: ' \
+            <li class="history-item"> \
+                <div class="timestamp"> \
+                    <%= new Date(item.timestamp).toString("ddd, MMM d yyyy, h:mm tt") %> \
+                </div> \
+                <div class="author"> \
+                    <%= item.author %> \
+                </div> \
+            </li> \
         '
     };
 
@@ -233,6 +257,28 @@ CS50.Run.prototype.createEditor = function() {
         me.download();
     });
 
+    // load history when history item is clicked on
+    $container.on('click', '.run50-history .history-item', function() {
+        var history = me.getHistory();
+        me.setCode(history[$(this).index()].content);
+        me.setLanguage(history[$(this).index()].language);
+    
+        // mark this as the current one
+        $container.find('.run50-history .active').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    // toggle history
+    $container.on('click', '.btn-history', function(e) {
+        if ($(this).is('.active')) {
+            $(this).removeClass('active');
+            $container.find('.run50-history-wrapper').hide();
+        } else {
+            $(this).addClass('active');
+            $container.find('.run50-history-wrapper').show();
+        }
+    });
+
     // catch ctrl-c and ctrl-d inside input
     $container.on('keyup', '.run50-input', function(e) {
         if (e.ctrlKey) {
@@ -253,8 +299,12 @@ CS50.Run.prototype.createEditor = function() {
     // if we have a history at this URL, load it
     var history = this.getHistory();
     if (history.length) {
+        this.renderHistory(history);
         this.setCode(history[0].content);
         this.setLanguage(history[0].language);
+        
+        // mark first as active
+        $container.find('.run50-history .history-item:first-child').addClass('active');
     }
 
     // no history, so load default language
@@ -669,8 +719,20 @@ CS50.Run.prototype.save = function() {
         content: this.getCode(),
         file: file,
         language: this.language,
-        timestamp: (new Date()).toString()
+        timestamp: (new Date()).toString(),
+        author: "Joseph Ong"
     });
+
+    // append to list
+    var $list = $(this.options.container).find('.run50-history');
+    var html = this.templates.historyItem({
+        item: history[0]
+    });
+    $list.prepend(html);
+        
+    // mark first as active
+    $list.find('.active').removeClass('active');
+    $list.find('.history-item:first-child').addClass('active');
 
     // save history
     this.setHistory(history);
@@ -699,6 +761,21 @@ CS50.Run.prototype.setHistory = function(history) {
     // set history property and save to sessionStorage
     session['history'] = history;
     sessionStorage[this.getNamespace()] = JSON.stringify(session);
+};
+
+/**
+ * Render the editor's history list
+ *
+ */
+CS50.Run.prototype.renderHistory = function(history) {
+    var me = this;
+    var $list = $(this.options.container).find('.run50-history');
+    $.each(history, function(i, item) {
+        var html = me.templates.historyItem({
+            item: item
+        });
+        $list.append(html);
+    });
 };
 
 /**
