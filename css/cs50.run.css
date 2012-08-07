@@ -132,6 +132,7 @@
     background-image: linear-gradient(top, white, #F1F1F1);
     display: inline-block;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
     margin: 15px 0px 12px 5px;
     overflow: hidden;
     position: relative;
@@ -143,7 +144,7 @@
     position: absolute;
     content: '';
     right: 6px;
-    top: 8px;
+    top: 7px;
     border: 4px solid transparent;
     border-top: 4px solid #333;
 }
