@@ -10,6 +10,7 @@ var CS50 = CS50 || {};
  *      endpoint: URL of CS50 Run's server
  *      languages: Languages user can choose from (C, Java, PHP, Python, Ruby)
  *      onCreate: Callback for editor creation
+ *      onDownload: Callback for download button pressed
  *      onLoadFromHistory: Callback for loading a revision from a user's history
  *      onSave: Callback for saving a revision
  *      prompt: Prompt to be displayed in the console
@@ -27,6 +28,7 @@ CS50.Run = function(options) {
     this.options.endpoint = (options.endpoint === undefined) ? 'http://run.cs50.net:80' : options.endpoint.replace(/\/+$/, '');
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
     this.options.onCreate = (options.onCreate === undefined) ? false : options.onCreate;
+    this.options.onDownload = (options.onDownload === undefined) ? false : options.onDownload;
     this.options.onLoadFromHistory = (options.onLoadFromHistory === undefined) ? false : options.onLoadFromHistory;
     this.options.onSave = (options.onSave === undefined) ? false : options.onSave;
     this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
@@ -244,6 +246,11 @@ CS50.Run.prototype.createEditor = function() {
     // event for updating dimensions
     $(window).on('resize', function() {
         resizeEditor();
+    });
+
+    // save editor contents when user leaves the page
+    $(window).on('beforeunload', function() {
+        me.save(false, false);
     });
 
     // when run is clicked, run/stop the code
@@ -474,6 +481,10 @@ CS50.Run.prototype.download = function() {
     $form.find('input').attr('name', 'file.' + this.extensions[this.language])
         .attr('value', this.getCode());
     $form.submit();
+
+    // fire callback
+    if (this.options.onDownload)
+        this.options.onDownload();
 };
 
 /**
@@ -758,9 +769,14 @@ CS50.Run.prototype.run = function() {
  * Save the current state of the editor in sessionStorage, namespaced by the current url
  *
  * @param starred {Boolean} Whether or not the submission should be starred
+ * @param async {Boolean} Whether or not the save should be asynchronous
  *
  */
-CS50.Run.prototype.save = function(starred) {
+CS50.Run.prototype.save = function(starred, async) {
+    // requests are async by default
+    if (async === undefined)
+        async = true;
+
     var me = this;
 
     // callback called after saving file
@@ -776,7 +792,7 @@ CS50.Run.prototype.save = function(starred) {
 
     // if save handler defined, then use that
     if (this.options.onSave)
-        this.options.onSave(this.language, file, this.getCode(), starred, afterSave);
+        this.options.onSave(this.language, file, this.getCode(), !!starred, afterSave, async);
 
     // no handler defined, so use default
     else {
