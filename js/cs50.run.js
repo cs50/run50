@@ -295,12 +295,11 @@ CS50.Run.prototype.createEditor = function() {
     $container.on('click', '.btn-history', function(e) {
         if ($(this).is('.active')) {
             $(this).removeClass('active');
-            $container.find('.run50-history-wrapper').hide();
-        } 
-        
+            $container.find('.run50-history-wrapper').fadeOut(200);
+        }         
         else {
             $(this).addClass('active');
-            $container.find('.run50-history-wrapper').show();
+            $container.find('.run50-history-wrapper').fadeIn(200);
         }
     });
 
@@ -382,6 +381,15 @@ CS50.Run.prototype.createEditor = function() {
             e.preventDefault();
             return false;
         }
+    });
+
+    $(window).click(function(e) {
+        if ($(e.target).closest($container.find('.btn-history').length > 0))
+            return false;
+        
+        if ($(e.target).closest($container.find('.run50-history-wrapper')).length == 0) {
+            $container.find('.run50-history-wrapper').fadeOut(200);
+        }                             
     });
 
     // create splitter
