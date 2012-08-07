@@ -475,8 +475,8 @@
     margin-right: 10px;
 }
 
-.btn-history-group button {
-    vertical-align: top;
+.run50-controls button {
+    vertical-align: baseline;
 }
 
 .save-icon {
