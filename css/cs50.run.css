@@ -475,6 +475,10 @@
     margin-right: 10px;
 }
 
+.btn-history-group button {
+    vertical-align: top;
+}
+
 .save-icon {
     background-image: url(img/save-icon.png);
     height: 20px;
