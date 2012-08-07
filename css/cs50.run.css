@@ -233,6 +233,9 @@
 .run50-status .status-loader {
     height: 14px;
     display: none;
+    background-image: url('img/ajax-bar.gif');
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .run50-options {
@@ -313,10 +316,11 @@
 
 .run50-history .history-item {
     position: relative;
-    padding: 5px 10px;
+    padding: 7px 10px;
     border-bottom: 1px solid #DDD;
     border-top: 1px solid white;
     cursor: pointer;
+    line-height: normal;
 }
 
 .run50-history .history-item:first-child {
