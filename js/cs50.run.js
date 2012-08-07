@@ -4,11 +4,15 @@ var CS50 = CS50 || {};
 /**
  * CS50 Run constructor
  *
- * @param options Editor options:
+ * @param options {Object} Editor options:
  *      container: DOM element into which editor will be loaded
  *      defaultLanguage: Language to start the editor off in (C, Java, PHP, Python, Ruby)
  *      endpoint: URL of CS50 Run's server
  *      languages: Languages user can choose from (C, Java, PHP, Python, Ruby)
+ *      onCreate: Callback for editor creation
+ *      onLoadFromHistory: Callback for loading a revision from a user's history
+ *      onSave: Callback for saving a revision
+ *      prompt: Prompt to be displayed in the console
  *
  */
 CS50.Run = function(options) {
@@ -40,7 +44,7 @@ CS50.Run = function(options) {
 
         'text/x-java': [
             { command: 'javac -J-Xmx128M file.java', args: '' },
-            { command: 'java -Xmx64M', args: 'Class' }
+            { command: 'java -Xmx64M', args: 'Main' }
         ],
 
         'text/x-php': [
@@ -262,10 +266,10 @@ CS50.Run.prototype.createEditor = function() {
 
     // when save is pressed, save the current contents into session storage as unstarred
     $container.on('click', '.btn-save', function() {
-        me.save(false);
+        me.save();
     });
 
-    // when save star is pressed, save the current contents into session storage as starred
+    // when save and star is pressed, save and mark the contents as starred
     $container.on('click', '.btn-save-star', function() {
         me.save(true);
     });
@@ -475,7 +479,7 @@ CS50.Run.prototype.download = function() {
 /**
  * Execute a queue of commands in sequence
  *
- * @param commands Queue of commands to execute
+ * @param commands {Array} Queue of commands to execute
  *
  */
 CS50.Run.prototype.execute = function(commands) {
@@ -626,8 +630,8 @@ CS50.Run.prototype.loadFromHistory = function(index) {
 
 /**
  * Reusable function for an execution failure
- * @param $container container for scoping selectors
- * @param data data associated with the error, optional
+ * @param $container {Object} container for scoping selectors
+ * @param code {String} Error code
  *
  */
 CS50.Run.prototype.failure = function($container, code) {
@@ -707,8 +711,8 @@ CS50.Run.prototype.getNamespace = function() {
 
 /**
  * Reusable function for creating a new input line and scrolling to it
- * @param $container container for scoping selectors
- * @param hidePrompt bool on whether to display prompt on next line
+ * @param $container {Object} Container for scoping selectors
+ * @param hidePrompt {Boolean} Whether to display prompt on next line
  *
  */
 CS50.Run.prototype.newline = function($container, hidePrompt) {
@@ -753,7 +757,8 @@ CS50.Run.prototype.run = function() {
 /**
  * Save the current state of the editor in sessionStorage, namespaced by the current url
  *
- * @param starred whether this history item is a starred item
+ * @param starred {Boolean} Whether or not the submission should be starred
+ *
  */
 CS50.Run.prototype.save = function(starred) {
     var me = this;
@@ -784,7 +789,7 @@ CS50.Run.prototype.save = function(starred) {
             file: file,
             language: this.language,
             timestamp: (new Date()).toString(),
-            starred: starred
+            starred: !!starred
         });
 
         // save history
@@ -805,7 +810,9 @@ CS50.Run.prototype.save = function(starred) {
 };
 
 /**
- * Get the code currently loaded into the editor
+ * Set the code currently loaded into the editor
+ * 
+ * @param value {String} Value for editor contents
  *
  */
 CS50.Run.prototype.setCode = function(value) {
@@ -814,6 +821,8 @@ CS50.Run.prototype.setCode = function(value) {
 
 /**
  * Set the editor's save history 
+ *
+ * @param history {Array} List of revisions
  *
  */
 CS50.Run.prototype.setHistory = function(history) {
@@ -835,6 +844,8 @@ CS50.Run.prototype.setHistory = function(history) {
 /**
  * Render the editor's history list
  *
+ * @param history {Array} History to render
+ *
  */
 CS50.Run.prototype.renderHistory = function(history) {
     var me = this;
@@ -853,11 +864,10 @@ CS50.Run.prototype.renderHistory = function(history) {
 /**
  * Change the editor's language
  *
- * @param mime MIME type of new language
- * @param dropdown If false, then reload the dropdown based on mime
+ * @param mime {String} MIME type of new language
  *
  */
-CS50.Run.prototype.setLanguage = function(mime, dropdown) {
+CS50.Run.prototype.setLanguage = function(mime) {
     var $container = $(this.options.container);
 
     // update editor language
@@ -879,7 +889,7 @@ CS50.Run.prototype.setLanguage = function(mime, dropdown) {
 /**
  * Scroll to the bottom of the console
  *
- * @param $container Container to scroll
+ * @param $container {Object} Container to scroll
  *
  */
 CS50.Run.prototype.scroll = function($container) {
@@ -889,7 +899,8 @@ CS50.Run.prototype.scroll = function($container) {
 /**
  * Upload a file, then execute the given commands
  *
- * @param commands Commands to execute after uploading file
+ * @param filename {String} Name of file to be uploaded
+ * @param commands {Array} Commands to execute after uploading file
  *
  */
 CS50.Run.prototype.upload = function(filename, commands) {
