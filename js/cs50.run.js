@@ -131,10 +131,11 @@ echo "Hello, run50!\\n";\n\
                         <button class="btn-download"> \
                             <div class="download-icon"></i> \
                         </button> \
-                        <button class="btn-save"> \
+                        <button class="btn-save btn-left"> \
                             <div class="save-icon"></i> \
-                        </button> \
-                        <button class="btn-history"> \
+                        </button><button class="btn-save-star btn-middle"> \
+                            <div class="save-icon-star"></i> \
+                        </button><button class="btn-history btn-right"> \
                             <div class="history-icon"></i> \
                         </button> \
                     </div> \
@@ -168,9 +169,14 @@ echo "Hello, run50!\\n";\n\
 
         historyItem: ' \
             <li class="history-item"> \
-                <div class="timestamp"> \
-                    <%= new Date(item.timestamp).toString("ddd, MMM d yyyy, h:mm tt") %> \
+                <div class="revision"> \
+                    Revision <%= revision %> \
                 </div> \
+                <div class="timestamp"> \
+                    <%= new Date(item.timestamp).toString("ddd, MMM d yyyy, h:mm:ss tt") %> \
+                </div> \
+                <% item.starred = Math.round(Math.random()) %> \
+                <%= item.starred ? \'<span class="star-icon"></span>\' : \'\' %> \
             </li> \
         '
     };
@@ -828,9 +834,11 @@ CS50.Run.prototype.renderHistory = function(history) {
     var me = this;
     var $list = $(this.options.container).find('.run50-history');
     $list.empty();
+    var length = history.length;
     $.each(history, function(i, item) {
         var html = me.templates.historyItem({
-            item: item
+            item: item,
+            revision: length--,
         });
         $list.append(html);
     });

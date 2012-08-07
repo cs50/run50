@@ -112,19 +112,60 @@
     top: 0px !important;
 }
 
-.run50-lang-wrapper {
-    display: inline-block;
-    margin: 14px 0px 12px 5px;
-    vertical-align: top;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+.run50-lang-wrapper .chzn-search {
+    display: none;
 }
 
-.run50-lang {
+.run50-lang-wrapper {
+    border: 1px solid #999;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    background-image: -webkit-linear-gradient(top, white, #F1F1F1);
+    background-image: -moz-linear-gradient(top, white, #F1F1F1);
+    background-image: -ms-linear-gradient(top, white, #F1F1F1);
+    background-image: -o-linear-gradient(top, white, #F1F1F1);
+    background-image: linear-gradient(top, white, #F1F1F1);
+    display: inline-block;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin: 15px 0px 12px 5px;
+    overflow: hidden;
+    position: relative;
+    vertical-align: top;
     width: 200px;
 }
 
-.run50-lang-wrapper .chzn-search {
-    display: none;
+.run50-lang-wrapper:before {
+    position: absolute;
+    content: '';
+    right: 6px;
+    top: 8px;
+    border: 4px solid transparent;
+    border-top: 4px solid #333;
+}
+
+.run50-lang {
+    display: inline-block;
+    width: 220px;
+    height: 18px;
+    line-height: normal;
+    background-color: transparent;
+    font-size: 11px;
+    padding: 3px 6px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    color: #333;
+    border: 0px;
+    margin: 0px;
+    margin-top: -1px;
+    vertical-align: top;
+    border-style: normal;
+}
+
+.run50-lang option {
+    width: 180px;
+    background-color: white;
+    border: 1px solid none;
 }
 
 .run50-lang-wrapper *:focus {
@@ -230,21 +271,11 @@
     display: none;
 }
 
-.btn-options {
-    display: inline-block;
-    text-decoration: none;
-    cursor: pointer;
-    vertical-align: top;
-    margin: 17px 0px 13px 1px;
-    height: 21px;
-    width: 21px;
-}
-
 /* Run50 History List */
 .run50-history-wrapper {
     display: none;
     position: absolute;
-    right: 10px;
+    right: 12px;
     top: 52px;
     bottom: 10px;
     width: 210px;
@@ -309,79 +340,38 @@
     background-color: #555;
 }
 
-.run50-history .history-item .timestamp {
+.run50-history .history-item .star-icon {
+    position: absolute;
+    background: url('img/star-icon.png');
+    right: 8px;
+    top: 9px;
+    width: 20px;
+    height: 20px;
+}
+
+.run50-history .history-item .revision {
     color: #555;
     font-size: 12px;
 }
 
-.run50-history .history-item .author {
+.run50-history .history-item .timestamp {
     color: #888;
     font-size: 11px;
     margin-top: 2px;
 }
 
-.btn-history-group {
+.btn-options {
     display: inline-block;
     text-decoration: none;
-    float: right;
-    margin-right: 10px;
-}
-
-.save-icon {
-    background-image: url(img/save-icon.png);
-    height: 20px;
-    width: 20px;
-}
-
-.download-icon {
-    background-image: url(img/download-icon.png);
-    height: 20px;
-    width: 20px;
-}
-
-.history-icon {
-    background-image: url(img/history-icon.png);
-    height: 20px;
-    width: 20px;
-}
-
-.btn-history-group button {
-    display: inline-block;
-    height: 34px;
-    width: 34px;
-    margin: 8px 0px 7px 5px;
-    border-radius: 16px;
-    -webkit-border-radius: 16px;
-    -moz-border-radius   : 16px;
-    border: 1px solid #999;
-    background-image: -moz-linear-gradient(top, #FBFBFB 50%, #EAEAEA);
-    background-image: -ms-linear-gradient(top, #FBFBFB 50%, #EAEAEA);
-    background-image: -webkit-linear-gradient(top, #FBFBFB 50%,  #EAEAEA);
-    background-image: -o-linear-gradient(top, #FBFBFB 50%, #EAEAEA);
-    background-image: linear-gradient(top, #FBFBFB 50%, #EAEAEA); 
-    box-shadow: 0px 0px 2px rgba(0, 0, 0, .2);
-    text-align: center;
-}
-
-.btn-history-group button:active {
-    background-image: -moz-linear-gradient(bottom, #FBFBFB 50%, #EAEAEA);
-    background-image: -ms-linear-gradient(bottom, #FBFBFB 50%, #EAEAEA);
-    background-image: -webkit-linear-gradient(bottom, #FBFBFB 50%,  #EAEAEA);
-    background-image: -o-linear-gradient(bottom, #FBFBFB 50%, #EAEAEA);
-    background-image: linear-gradient(bottom, #FBFBFB 50%, #EAEAEA); 
-}
-
-.btn-history-group button.disabled {
-    background-image: -moz-linear-gradient(top, #EDEDED 50%, #DCDCDC);
-    background-image: -ms-linear-gradient(top, #EDEDED 50%, #DCDCDC);
-    background-image: -webkit-linear-gradient(top, #EDEDED 50%,  #DCDCDC);
-    background-image: -o-linear-gradient(top, #EDEDED 50%, #DCDCDC);
-    background-image: linear-gradient(top, #EDEDED 50%, #DCDCDC); 
-    border: 1px solid #BBB;
+    cursor: pointer;
+    vertical-align: top;
+    margin: 15px 0px 13px 0px;
+    height: 21px;
+    width: 21px;
 }
 
 .btn-options:hover, .btn-options.active {
-    margin: 16px 0px 13px 0px;
+    margin: 14px 0px 13px -1px;
     -webkit-border-radius: 5px;
     -moz-border-radius   : 5px;
     border-radius        : 5px;
@@ -434,11 +424,11 @@
     color: #FFF;
 }
 
-.btn-run {
+.run50-controls button {
     display: inline-block;
     height: 34px;
     width: 34px;
-    margin: 8px 0px 7px 10px;
+    margin: 8px 0px 7px 5px;
     border-radius: 16px;
     -webkit-border-radius: 16px;
     -moz-border-radius   : 16px;
@@ -452,7 +442,7 @@
     text-align: center;
 }
 
-.btn-run:active {
+.run50-controls button:active {
     background-image: -moz-linear-gradient(bottom, #FBFBFB 50%, #EAEAEA);
     background-image: -ms-linear-gradient(bottom, #FBFBFB 50%, #EAEAEA);
     background-image: -webkit-linear-gradient(bottom, #FBFBFB 50%,  #EAEAEA);
@@ -460,7 +450,7 @@
     background-image: linear-gradient(bottom, #FBFBFB 50%, #EAEAEA); 
 }
 
-.btn-run.disabled {
+.run50-controls button.disabled {
     background-image: -moz-linear-gradient(top, #EDEDED 50%, #DCDCDC);
     background-image: -ms-linear-gradient(top, #EDEDED 50%, #DCDCDC);
     background-image: -webkit-linear-gradient(top, #EDEDED 50%,  #DCDCDC);
@@ -469,8 +459,66 @@
     border: 1px solid #BBB;
 }
 
-.btn-run img {
-    vertical-align: top;
+.run50-controls button.btn-run {
+    margin-left: 10px;
+}
+
+.btn-history-group {
+    display: inline-block;
+    text-decoration: none;
+    float: right;
+    margin-right: 10px;
+}
+
+.save-icon {
+    background-image: url(img/save-icon.png);
+    height: 20px;
+    width: 20px;
+}
+
+.save-icon-star {
+    background-image: url(img/save-icon-star.png);
+    height: 20px;
+    width: 20px;
+}
+
+.download-icon {
+    background-image: url(img/download-icon.png);
+    height: 20px;
+    width: 20px;
+}
+
+.history-icon {
+    background-image: url(img/history-icon.png);
+    height: 20px;
+    width: 20px;
+}
+
+.run50-controls button.btn-left {
+    margin-right: 0px;
+    border-radius: 5px 0px 0px 5px;
+    -webkit-border-radius: 5px 0px 0px 5px;
+    -moz-border-radius   : 5px 0px 0px 5px;
+    padding-left: 7px;
+    width: 35px;
+}
+
+.run50-controls button.btn-middle {
+    margin-right: 0px;
+    border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -moz-border-radius   : 0px;
+    padding-left: 7px;
+    width: 35px;
+    margin-left: -1px;
+}
+
+.run50-controls button.btn-right {
+    margin-left: -1px;
+    border-radius: 0px 5px 5px 0px;
+    -webkit-border-radius: 0px 5px 5px 0px;
+    -moz-border-radius   : 0px 5px 5px 0px;
+    width: 35px;
 }
 
 .run-img {
