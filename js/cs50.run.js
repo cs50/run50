@@ -384,7 +384,7 @@ CS50.Run.prototype.createEditor = function() {
     });
 
     $(window).click(function(e) {
-        if ($(e.target).closest($container.find('.btn-history')).length > 0)
+        if ($(e.target).closest($container.find('.btn-history, .btn-save, .btn-save-star')).length > 0)
             return false;
        
         if ($(e.target).closest($container.find('.run50-history-wrapper')).length == 0) {
