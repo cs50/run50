@@ -29,6 +29,7 @@
 
 .run50-container {
     font-family: HelveticaNeue-Light, Helvetica, sans-serif, Arial;
+    line-height: normal;
 }
 
 .run50-console {
@@ -38,6 +39,9 @@
     border-radius: 0px;
     -webkit-border-radius: 0px;
     -moz-border-radius: 0px;
+    font-family: monospace;
+    font-size: 13px;
+    color: white;
 }
 
 .run50-container {
@@ -239,6 +243,7 @@
     position: relative;
     display: none;
     box-shadow: inset 0px 0px 5px rgba(0, 0, 0, .8);
+    line-height: normal;
 }
 
 .run50-options [contenteditable] {
