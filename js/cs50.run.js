@@ -137,9 +137,9 @@ echo "Hello, run50!\\n";\n\
                         <button class="btn-download"> \
                             <div class="download-icon"></i> \
                         </button> \
-                        <button class="btn-save btn-left"> \
+                        <button class="btn-save disabled btn-left"> \
                             <div class="save-icon"></i> \
-                        </button><button class="btn-save-star btn-middle"> \
+                        </button><button class="btn-save-star disabled btn-middle"> \
                             <div class="save-icon-star"></i> \
                         </button><button class="btn-history btn-right"> \
                             <div class="history-icon"></i> \
@@ -224,7 +224,12 @@ CS50.Run.prototype.createEditor = function() {
     this.editor = CodeMirror.fromTextArea($container.find('.run50-code')[0], {
         indentUnit: 4,
         lineNumbers: true,
-        lineWrapping: true
+        lineWrapping: true,
+        onKeyEvent: function() {
+            // when textarea is dirtied via typing, enable saving and unmark revision as active
+            me.dirty();
+            $container.find('.run50-history .history-item.active').removeClass('active');
+        }
     });
 
     // reusable function for resizing the instance
@@ -273,12 +278,14 @@ CS50.Run.prototype.createEditor = function() {
 
     // when save is pressed, save the current contents into session storage as unstarred
     $container.on('click', '.btn-save', function() {
-        me.save();
+        if (!$(this).is('.disabled'))
+            me.save();
     });
 
     // when save and star is pressed, save and mark the contents as starred
     $container.on('click', '.btn-save-star', function() {
-        me.save(true);
+        if (!$(this).is('.disabled'))
+            me.save(true);
     });
 
     // when download button is pressed, download the current contents of the editor
@@ -288,7 +295,9 @@ CS50.Run.prototype.createEditor = function() {
 
     // load history when history item is clicked on
     $container.on('click', '.run50-history .history-item', function() {
-        me.loadFromHistory($(this).index());
+        // don't bother if this is already the active item
+        if (!$(this).is('.active'))
+            me.loadFromHistory($(this).index());
     });
 
     // toggle history
@@ -479,6 +488,16 @@ CS50.Run.prototype.createEditor = function() {
 };
 
 /**
+ * Enables saving, signalling that textarea has been dirtied
+ *
+ */
+CS50.Run.prototype.dirty = function () {
+    // enable the saving buttons
+    $(this.options.container).find('.btn-save, .btn-save-star').removeClass('disabled');
+}
+
+
+/**
  * Download the current contents of the editor as a text file
  *
  */
@@ -646,6 +665,9 @@ CS50.Run.prototype.loadFromHistory = function(index) {
     var $container = $(this.options.container);
     $container.find('.run50-history .active').removeClass('active');
     $container.find('.run50-history li:nth-child(' + parseInt(index + 1) + ')').addClass('active');
+  
+    // loading from history dirties the textarea
+    this.dirty();
 };
 
 /**
@@ -794,6 +816,9 @@ CS50.Run.prototype.save = function(starred, async) {
         var $list = $(me.options.container).find('.run50-history');
         $list.find('.active').removeClass('active');
         $list.find('.history-item:first-child').addClass('active');
+    
+        // disable save buttons
+        $(me.options.container).find('.btn-save, .btn-save-star').addClass('disabled');
     }
 
     // determine file to be saved
