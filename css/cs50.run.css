@@ -236,13 +236,13 @@
 }
 
 .run50-options {
+    display: none;
     border-top: 1px solid #CCC;
     background: #444;
     font-family: monospace;
     text-align: left;
     z-index: 11;
     position: relative;
-    display: none;
     box-shadow: inset 0px 0px 5px rgba(0, 0, 0, .8);
     line-height: normal;
 }
@@ -254,7 +254,8 @@
     padding: 5px 0px;
     outline: 0px;
     color: #BBB;
-    height: 14px;
+    overflow: hidden;
+    min-height: 13px;
 }
 
 .run50-options [data-id-command] {
