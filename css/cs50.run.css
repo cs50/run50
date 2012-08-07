@@ -163,9 +163,7 @@
 }
 
 .run50-lang option {
-    width: 180px;
     background-color: white;
-    border: 1px solid none;
 }
 
 .run50-lang-wrapper *:focus {
@@ -249,8 +247,8 @@
     margin: 0px;
     padding: 5px 0px;
     outline: 0px;
-    overflow: hidden;
     color: #BBB;
+    height: 14px;
 }
 
 .run50-options [data-id-command] {
