@@ -389,6 +389,7 @@ CS50.Run.prototype.createEditor = function() {
        
         if ($(e.target).closest($container.find('.run50-history-wrapper')).length == 0) {
             $container.find('.run50-history-wrapper').fadeOut(200);
+            $container.find('.btn-history').removeClass('active');
         }                             
     });
 
