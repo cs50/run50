@@ -771,7 +771,7 @@ CS50.Run.prototype.save = function(starred) {
 
     // if save handler defined, then use that
     if (this.options.onSave)
-        this.options.onSave(this.language, file, this.getCode(), afterSave);
+        this.options.onSave(this.language, file, this.getCode(), starred, afterSave);
 
     // no handler defined, so use default
     else {
