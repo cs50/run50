@@ -175,7 +175,6 @@ echo "Hello, run50!\\n";\n\
                 <div class="timestamp"> \
                     <%= new Date(item.timestamp).toString("ddd, MMM d yyyy, h:mm:ss tt") %> \
                 </div> \
-                <% item.starred = Math.round(Math.random()) %> \
                 <%= item.starred ? \'<span class="star-icon"></span>\' : \'\' %> \
             </li> \
         '
@@ -261,9 +260,14 @@ CS50.Run.prototype.createEditor = function() {
         }
     });
 
-    // when save is pressed, save the current contents into session storage
+    // when save is pressed, save the current contents into session storage as unstarred
     $container.on('click', '.btn-save', function() {
-        me.save();
+        me.save(false);
+    });
+
+    // when save star is pressed, save the current contents into session storage as starred
+    $container.on('click', '.btn-save-star', function() {
+        me.save(true);
     });
 
     // when download button is pressed, download the current contents of the editor
@@ -749,8 +753,9 @@ CS50.Run.prototype.run = function() {
 /**
  * Save the current state of the editor in sessionStorage, namespaced by the current url
  *
+ * @param starred whether this history item is a starred item
  */
-CS50.Run.prototype.save = function() {
+CS50.Run.prototype.save = function(starred) {
     var me = this;
 
     // callback called after saving file
@@ -779,6 +784,7 @@ CS50.Run.prototype.save = function() {
             file: file,
             language: this.language,
             timestamp: (new Date()).toString(),
+            starred: starred
         });
 
         // save history
