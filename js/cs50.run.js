@@ -554,6 +554,7 @@ CS50.Run.prototype.execute = function(commands) {
 
             // successful, so continue execution queue
             else {
+
                 // create new console line
                 me.newline($container, commands.length === 0);
                 
@@ -567,7 +568,6 @@ CS50.Run.prototype.execute = function(commands) {
                         $container.find('.run50-status .status-loader').fadeOut(); 
                         $container.find('.run50-status').addClass('success');
                     }, 300);
-
                     setTimeout(function() {
                         if ($status.text() == 'Run successful!')
                             $('.run50-status').removeClass('success');
@@ -593,8 +593,9 @@ CS50.Run.prototype.execute = function(commands) {
         
         // listen for stdout
         this.socket.on('stdout', function(data) {
+
             // prepend data, and adjust text indent to match
-            var $prompt = $('<span>' + data + '</span>');
+            var $prompt = $('<span>' + $.parseJSON(data) + '</span>');
             var $input = $container.find('.run50-input.active').before($prompt);
             var indent = $prompt.position().left - 
                 parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
@@ -611,15 +612,10 @@ CS50.Run.prototype.execute = function(commands) {
         // listening and buffering for standard error
         var buffer = "";
         this.socket.on('stderr', function(data) {
-
-            /* DJM: temporarily here until ANSI bug is resolved */
-            //$container.find('.run50-input.active').before(data.toString());
-            //me.scroll($container);
-
-            //DJM: temporarily disabled until ANSI bug is resolved
             // if we get a valid ansi sequence, display the message
-            buffer += data;           
+            buffer += data;
             if (validANSI(buffer)) {
+
                 // get colored buffer and correct for newlines
                 var colored = ansispan(buffer).replace(/\r\n<\/span>/g, "</span><br/>")
                                 .replace(/\n<\/span>/g, "</span><br/>")
@@ -630,6 +626,7 @@ CS50.Run.prototype.execute = function(commands) {
                 $container.find('.run50-input.active').before(colored);
                 me.scroll($container);
                 blah = colored;
+
                 // clear the buffer    
                 buffer = "";
             }
