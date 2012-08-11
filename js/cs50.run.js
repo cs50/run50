@@ -858,7 +858,7 @@ CS50.Run.prototype.save = function(starred, async) {
 
     // display success message and message
     var $container = $(this.options.container);
-    $container.find('.run50-status .status-text').text("Save successful!");
+    $container.find('.run50-status .status-text').text("Downloaded file!");
     $container.find('.run50-status').addClass('success');
     setTimeout(function() {
         $container.find('.run50-status .status-text').text("");
