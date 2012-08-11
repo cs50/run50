@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="css/lib/jquery-ui-1.8.21.custom.css" />
+        <link rel="stylesheet" type="text/css" href="css/lib/codemirror.css" />
+        <link rel="stylesheet" type="text/css" href="css/lib/codemirror-dialog.css" />
+        <link rel="stylesheet" type="text/css" href="css/cs50.run.css" />
+
+        <script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="js/lib/jquery-ui-1.8.21.custom.min.js"></script>
+        <script type="text/javascript" src="js/lib/date.js"></script>
+        <script type="text/javascript" src="js/lib/underscore-min.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/codemirror.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/formatting.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/dialog.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/searchcursor.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/clike.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/css.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/javascript.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/php.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/ruby.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/htmlmixed.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/mysql.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/python.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/search.js"></script>
+        <script type="text/javascript" src="js/lib/codemirror/xml.js"></script>
+        <script type="text/javascript" src="js/lib/ansispan/ansispan.js"></script>
+        <script type="text/javascript" src="http://run.cs50.net:80/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="js/cs50.run.js"></script>
+
+        <script>
+            $(function() {
+                window.run = new CS50.Run({
+                    container: '#run',
+                    languages: ['C', 'PHP']
+                });
+            });
+        </script>
+        <style type="text/css">
+            body, html {
+                height: 100%;
+                margin: 0px;
+                padding: 0px;
+                width: 100%;
+            }
+
+            #run {
+                height: 100%;
+                width: 100%;
+            }
+        </style>
+        <title>This is CS50 Run.</title>
+    </head>
+    <body>
+        <div id="run"></div>
+    </body>
+</html>
