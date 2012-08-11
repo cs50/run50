@@ -4,13 +4,13 @@
     <head>
         <link href="build/cs50.run.min.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
-        <script type="text/javascript" src="http://run.cs50.net:80/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
         <script type="text/javascript" src="build/cs50.run.min.js"></script>
         <script>
             $(function() {
                 var run = new CS50.Run({
                     container: '#run',
-                    endpoint: 'http://192.168.74.129:8080',
+                    endpoint: '/',
                     languages: ['C', 'PHP']
                 });
             });

@@ -25,7 +25,7 @@ CS50.Run = function(options) {
 
     // default options
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
-    this.options.endpoint = (options.endpoint === undefined) ? 'http://run.cs50.net:80' : options.endpoint.replace(/\/+$/, '');
+    this.options.endpoint = (options.endpoint === undefined) ? 'http://run.cs50.net:80' : options.endpoint;
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
     this.options.onCreate = (options.onCreate === undefined) ? false : options.onCreate;
     this.options.onDownload = (options.onDownload === undefined) ? false : options.onDownload;
@@ -33,7 +33,16 @@ CS50.Run = function(options) {
     this.options.onSave = (options.onSave === undefined) ? false : options.onSave;
     this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
 
-    // ensure endpoint specifies a port (else socket.io assumes server is on same port as client, even if on different host)
+    // trim trailing slash(es) from endpoint
+    this.options.endpoint = this.options.endpoint.replace(/\/+$/, '');
+
+    // assume same host by default
+    if (this.options.endpoint.length == 0) {
+        this.options.endpoint = [window.location.protocol, '//', window.location.host].join('');
+    }
+
+    // ensure endpoint specifies a port
+    // (else socket.io assumes server is on same port as client, even if on different host)
     if (!this.options.endpoint.match(/:\d+$/))
         this.options.endpoint += ':80';
 
@@ -612,6 +621,7 @@ CS50.Run.prototype.execute = function(commands) {
         // listening and buffering for standard error
         var buffer = "";
         this.socket.on('stderr', function(data) {
+
             // if we get a valid ansi sequence, display the message
             buffer += data;
             if (validANSI(buffer)) {
