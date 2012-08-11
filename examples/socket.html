@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <script src="jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+        $(document).ready(function() {
+
+            // upon form's submission
+            $('#form').submit(function() {
+
+                // clear placeholders
+                $('#code').html('');
+                $('#stderr').html('');
+                $('#stdout').html('');
+
+                // upload src.c
+                $.ajax({
+                 data: {
+                  'src.c': $('#src').val()
+                 },
+
+                 // upon successful upload
+                 success: function(data, textStatus, jqXHR) {
+
+                    // connect to server
+                    // https://github.com/LearnBoost/socket.io/issues/727
+                    var socket = io.connect('/', { 'force new connection': true });
+
+                    // listen for error
+                    socket.on('error', function(data) {
+                        console.log(data.error);
+                        socket.disconnect();
+                    });
+
+                    // listen for success
+                    socket.on('success', function(data) {
+                        $('#code').text(data.code).html();
+                        socket.disconnect();
+                    });
+
+                    // listen for stderr
+                    socket.on('stderr', function(data) {
+                        $('#stderr').append(document.createTextNode(data));
+                    });
+
+                    // listen for stdout
+                    socket.on('stdout', function(data) {
+                        $('#stdout').append(document.createTextNode(data));
+                    });
+
+                    // send stdin
+                    $('#enter').unbind('click');
+                    $('#enter').click(function() {
+                        socket.emit('stdin', $('#stdin').val());
+                        $('#stdin').val('');
+                    });
+
+                    // send EOF
+                    $('#EOF').unbind('click');
+                    $('#EOF').click(function() {
+                        socket.emit('EOF');
+                    });
+
+                    // send SIGINT
+                    $('#SIGINT').unbind('click');
+                    $('#SIGINT').click(function() {
+                        socket.emit('SIGINT');
+                    });
+
+                    // run cmd
+                    socket.emit('run', {
+                      cmd: $('#cmd').val(),
+                      homedir: data.id
+                     });
+
+                 },
+
+                 type: 'post',
+                 url: '/upload'
+                });
+
+                // don't submit form in the usual way
+                return false;
+
+            });
+
+        });
+
+      </script>
+    <title>CS50 Run</title>
+  </head>
+  <body>
+    <form id="form">
+      src: <textarea cols="80" id="src" name="src.c" rows="16" style="font-family: monospace">&lt;?php echo "hi tommy!"; ?&gt;</textarea>
+      <br><br>
+      cmd: <input id="cmd" name="cmd" style="width: 300px" type="text" value="php src.c"> <input type="submit" value="run">
+      <br>
+      stdin: <input id="stdin" style="width: 300px" type="text" value=""> <input id="enter" type="button" value="Enter"> <input id="EOF" type="button" value="ctrl-d"> <input id="SIGINT" type="button" value="ctrl-c">
+      <br><br>
+      exit code: <div id="code"></div>
+      <br><br>
+      stdout: <div id="stdout"></div>
+      <br><br>
+      stderr: <div id="stderr"></div>
+    </form>
+  </body>
+</html>

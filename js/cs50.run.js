@@ -463,7 +463,7 @@ CS50.Run.prototype.createEditor = function() {
             e.preventDefault();
 
             // send input to stdin, create new content editable area
-            me.socket.emit('stdin', $(this).text() + "\n");
+            me.socket.emit('stdin', $(this).text() + '\n');
             $(this).removeClass('active').attr('contenteditable', false).after('\n');
             $console = $(this).parents('.run50-console');
             $console.append('<div class="run50-input active" contenteditable="true"></div>');
