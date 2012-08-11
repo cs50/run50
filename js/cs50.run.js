@@ -604,7 +604,7 @@ CS50.Run.prototype.execute = function(commands) {
         this.socket.on('stdout', function(data) {
 
             // prepend data, and adjust text indent to match
-            var $prompt = $('<span>' + $.parseJSON(data) + '</span>');
+            var $prompt = $('<span>' + data + '</span>');
             var $input = $container.find('.run50-input.active').before($prompt);
             var indent = $prompt.position().left - 
                 parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
