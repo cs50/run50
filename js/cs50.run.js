@@ -558,8 +558,9 @@ CS50.Run.prototype.execute = function(commands) {
             me.socket.disconnect();
 
             // error occurred on a command, so halt execution of queue and display error
-            if (data.code !== 0)
+            if (data.code !== 0) {
                 me.failure($(me.options.container));
+            }
 
             // successful, so continue execution queue
             else {
@@ -689,16 +690,20 @@ CS50.Run.prototype.failure = function($container, code) {
     // display error-specific text
     var text = 'An error occurred.';
     switch (code) {
+        case 'E_EXCESS':
+            text = 'Your program generated too much output!';
+            break;
+
         case 'E_TIMEOUT':
             text = 'Your program took too long to run!';
             break;
 
-        case 'E_USAGE':
-            text = 'CS50 Run was used incorrectly';
-            break;
-
         case 'E_KILLED':
             text = 'Your program was terminated!';
+            break;
+
+        case 'E_USAGE':
+            text = 'CS50 Run was used incorrectly';
             break;
 
         case 'E_USER_SERVER_DOWN':
