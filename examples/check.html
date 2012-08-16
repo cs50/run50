@@ -29,10 +29,8 @@
                     // check
                     $.ajax({
                      data: {
-                      suite: $('#suite').val(),
-                      sandbox: {
-                       homedir: id
-                      }
+                      checks: $('#checks').val(),
+                      homedir: id
                      },
 
                      // error
@@ -74,11 +72,11 @@ main(void)
     return 0;
 }</textarea>
       <br><br>
-      suite: <input id="suite" style="width: 300px" type="text" value="file">
+      checks: <input id="checks" style="width: 300px" type="text" value="file">
       <br>
       <input type="submit" value="check">
       <br><br>
-      response: <textarea cols="80" id="response" rows="32" style="font-family: monospace"></textarea>
+      response: <textarea cols="80" id="response" rows="16" style="font-family: monospace"></textarea>
     </form>
   </body>
 </html>

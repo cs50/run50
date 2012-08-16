@@ -493,7 +493,7 @@ CS50.Run.prototype.createEditor = function() {
 
         // no history, so load default language and code
         else {
-            this.setCode(this.options.defaultCode || this.samples[this.languageNathiss[this.options.defaultLanguage]]);
+            this.setCode(this.options.defaultCode || this.samples[this.languageNames[this.options.defaultLanguage]]);
             this.setLanguage(this.languageNames[this.options.defaultLanguage]);
         }
 
