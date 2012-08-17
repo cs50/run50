@@ -6,6 +6,7 @@ var CS50 = CS50 || {};
  *
  * @param options {Object} Editor options:
  *      container: DOM element into which editor will be loaded
+ *      defaultCode: Value of the code editor when no history is loaded
  *      defaultLanguage: Language to start the editor off in (C, Java, PHP, Python, Ruby)
  *      endpoint: URL of CS50 Run's server
  *      languages: Languages user can choose from (C, Java, PHP, Python, Ruby)
@@ -24,6 +25,7 @@ CS50.Run = function(options) {
         throw 'Error: You must define a container for run50!';
 
     // default options
+    this.options.defaultCode = (options.defaultCode === undefined) ? false : options.defaultCode;
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
     this.options.endpoint = (options.endpoint === undefined) ? 'http://run.cs50.net:80' : options.endpoint;
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
@@ -489,9 +491,13 @@ CS50.Run.prototype.createEditor = function() {
             $container.find('.run50-history .history-item:first-child').addClass('active');
         }
 
-        // no history, so load default language
-        else
+        // no history, so load default language and code
+        else {
+            setTimeout(function() { 
+                me.setCode(me.options.defaultCode || me.samples[me.languageNames[me.options.defaultLanguage]]);
+            }, 1);
             this.setLanguage(this.languageNames[this.options.defaultLanguage]);
+        }
 
         afterCreate();
     }
