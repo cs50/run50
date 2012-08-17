@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <script src="jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+        $(document).ready(function() {
+
+            // upon form's submission
+            $('#form').submit(function() {
+
+                // clear placeholders
+                $('#response').val('');
+
+                // upload src.c
+                $.ajax({
+                 data: {
+                  'src.c': $('#src').val()
+                 },
+
+                 // upon successful upload
+                 success: function(data, textStatus, jqXHR) {
+
+                    // remember upload's ID
+                    var id = data.id;
+
+                    // check
+                    $.ajax({
+                     data: {
+                      suite: $('#suite').val(),
+                      sandbox: {
+                       homedir: id
+                      }
+                     },
+
+                     // error
+                     error: function(jqXHR, textStatus, errorThrown) {
+                         $('#response').val(jqXHR.responseText);
+                     },
+
+                     // success
+                     success: function(data, textStatus, jqXHR) {
+                         $('#response').val(jqXHR.responseText);
+                     },
+
+                     type: 'post',
+                     url: '/check'
+
+                    });
+                 },
+
+                 type: 'post',
+                 url: '/upload'
+
+                });
+
+                // don't submit form in the usual way
+                return false;
+
+            });
+        });
+      </script>
+    <title>CS50 Check</title>
+  </head>
+  <body>
+    <form id="form">
+      src: <textarea cols="80" id="src" rows="16" style="font-family: monospace">#include <stdio.h>
+
+int
+main(void)
+{
+    return 0;
+}</textarea>
+      <br><br>
+      suite: <input id="suite" style="width: 300px" type="text" value="file">
+      <br>
+      <input type="submit" value="check">
+      <br><br>
+      response: <textarea cols="80" id="response" rows="16" style="font-family: monospace"></textarea>
+    </form>
+  </body>
+</html>
