@@ -264,7 +264,8 @@ CS50.Run.prototype.createEditor = function() {
 
     // save editor contents when user leaves the page
     $(window).on('beforeunload', function() {
-        me.save(false, false);
+        if (!$(me.options.container).find('.btn-save').hasClass('disabled'))
+            me.save(false, false);
     });
 
     // when run is clicked, run/stop the code
