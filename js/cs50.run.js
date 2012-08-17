@@ -493,9 +493,7 @@ CS50.Run.prototype.createEditor = function() {
 
         // no history, so load default language and code
         else {
-            setTimeout(function() { 
-                me.setCode(me.options.defaultCode || me.samples[me.languageNames[me.options.defaultLanguage]]);
-            }, 1);
+            this.setCode(this.options.defaultCode || this.samples[this.languageNathiss[this.options.defaultLanguage]]);
             this.setLanguage(this.languageNames[this.options.defaultLanguage]);
         }
 
@@ -885,7 +883,10 @@ CS50.Run.prototype.save = function(starred, async) {
  *
  */
 CS50.Run.prototype.setCode = function(value) {
-    this.editor.setValue(value);
+    var me = this;
+    setTimeout(function() {
+        me.editor.setValue(value);
+    }, 1);
 };
 
 /**
