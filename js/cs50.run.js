@@ -660,9 +660,10 @@ CS50.Run.prototype.execute = function(commands) {
  * Load a revision from the history
  *
  * @param index {Number} Index into history list to load from
+ * @param notDirty {Boolean} True to avoid marking the text area as dirty
  *
  */
-CS50.Run.prototype.loadFromHistory = function(index) {
+CS50.Run.prototype.loadFromHistory = function(index, notDirty) {
     // use custom history loader if defined
     if (this.options.onLoadFromHistory)
         this.options.onLoadFromHistory(index);
@@ -680,7 +681,8 @@ CS50.Run.prototype.loadFromHistory = function(index) {
     $container.find('.run50-history li:nth-child(' + parseInt(index + 1) + ')').addClass('active');
   
     // loading from history dirties the textarea
-    this.dirty();
+    if (!notDirty)
+        this.dirty();
 };
 
 /**
