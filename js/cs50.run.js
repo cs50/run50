@@ -51,7 +51,7 @@ CS50.Run = function(options) {
     // map from mimes to commands necessary to run code
     this.commands = {
         'text/x-csrc': [
-            { command: 'clang file.c', args: '-std=c99 -Wall -Werror -fcolor-diagnostics -lcs50 -lm' },
+            { command: 'clang file.c', args: '-std=c99 -Wall -Werror -fno-color-diagnostics -lcs50 -lm' },
             { command: './a.out', args: '' }
         ],
 
