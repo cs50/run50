@@ -51,7 +51,7 @@ CS50.Run = function(options) {
     // map from mimes to commands necessary to run code
     this.commands = {
         'text/x-csrc': [
-            { command: 'clang file.c', args: '-std=c99 -Wall -Werror -fno-color-diagnostics -lcs50 -lm' },
+            { command: 'clang file.c', args: '-std=c99 -Wall -Werror -fcolor-diagnostics -lcs50 -lm' },
             { command: './a.out', args: '' }
         ],
 
@@ -632,6 +632,7 @@ CS50.Run.prototype.execute = function(commands) {
             buffer += data;
             if (validANSI(buffer)) {
 
+
                 // get colored buffer and correct for newlines
                 var colored = ansispan(buffer).replace(/\r\n<\/span>/g, "</span><br/>")
                                 .replace(/\n<\/span>/g, "</span><br/>")
@@ -641,7 +642,7 @@ CS50.Run.prototype.execute = function(commands) {
                 // display error message
                 $container.find('.run50-input.active').before(colored);
                 me.scroll($container);
-                blah = colored;
+                console.log(colored);
 
                 // clear the buffer    
                 buffer = "";
