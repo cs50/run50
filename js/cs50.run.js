@@ -178,6 +178,7 @@ echo "Hello, run50!\\n";\n\
                     </div> \
                     <div class="run50-splitter">&equiv;&equiv;&equiv;</div> \
                     <div class="run50-console-container"> \
+                        <div class="run50-console-clear">&times;</div> \
                         <pre class="run50-console"><div contenteditable="false" class="run50-input active"></div></pre> \
                     </div> \
                 </div> \
@@ -465,18 +466,32 @@ CS50.Run.prototype.createEditor = function() {
         $(this).find('.run50-input').focus();
     });
 
+    // clear console when clear clicked, except for active stdin
+    $container.on('click', '.run50-console-clear', function() {         
+        var $input = $container.find('.run50-input.active');
+        var $console = $container.find('.run50-console').empty();
+        $input.appendTo($console).focus();
+    });
+
     // when enter is pressed in the console, send to stdin
     $container.on('keypress', '.run50-input.active', function(e) {
         if (e.which == 13) {
             // needed to prevent newline being inserted into active contenteditable
             e.preventDefault();
 
-            // send input to stdin, create new content editable area
-            me.socket.emit('stdin', $(this).text() + '\n');
-            $(this).removeClass('active').attr('contenteditable', false).after('\n');
-            $console = $(this).parents('.run50-console');
-            $console.append('<div class="run50-input active" contenteditable="true"></div>');
-            $console.find('.run50-input.active').focus();
+            // if too many characters after newline, reject stdin and kill program
+            if ($(this).text().length + 1 > 1048576) {
+                me.socket.emit('SIGINT');
+                return false;
+            } 
+            else {
+                // send input to stdin, create new content editable area
+                me.socket.emit('stdin', $(this).text() + '\n');
+                $(this).removeClass('active').attr('contenteditable', false).after('\n');
+                $console = $(this).parents('.run50-console');
+                $console.append('<div class="run50-input active" contenteditable="true"></div>');
+                $console.find('.run50-input.active').focus();
+            }
         }
     });
 
@@ -713,7 +728,7 @@ CS50.Run.prototype.loadFromHistory = function(index, notDirty) {
  */
 CS50.Run.prototype.failure = function($container, code) {
     var me = this;
-  
+ 
     // display error-specific text
     var text = 'An error occurred.';
     switch (code) {

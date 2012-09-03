@@ -63,6 +63,35 @@
     position: relative;
 }
 
+.run50-container .run50-console-container .run50-console-clear {
+    position: absolute;
+    display: none;
+    top: 10px;
+    right: 10px;
+    border-radius: 15px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    background-color: black;
+    opacity: .4;
+    font-size: 2em;
+    line-height: normal;
+    text-align: center;
+    vertical-align: middle;
+    width: 30px;
+    height: 31px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 5;
+}
+
+.run50-container .run50-console-container:hover .run50-console-clear {
+    display: block;
+}
+
+.run50-container .run50-console-container .run50-console-clear:hover {
+    opacity: .9;
+}
+
 .run50-container .run50-console {
     margin-top: 0;
     margin-bottom: 0;
