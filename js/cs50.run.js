@@ -27,7 +27,7 @@ CS50.Run = function(options) {
     // default options
     this.options.defaultCode = (options.defaultCode === undefined) ? false : options.defaultCode;
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
-    this.options.endpoint = (options.endpoint === undefined) ? 'http://run.cs50.net:80' : options.endpoint;
+    this.options.endpoint = (options.endpoint === undefined) ? '/' : options.endpoint;
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
     this.options.onCreate = (options.onCreate === undefined) ? false : options.onCreate;
     this.options.onDownload = (options.onDownload === undefined) ? false : options.onDownload;
@@ -38,15 +38,21 @@ CS50.Run = function(options) {
     // trim trailing slash(es) from endpoint
     this.options.endpoint = this.options.endpoint.replace(/\/+$/, '');
 
-    // assume same host by default
-    if (this.options.endpoint.length == 0) {
-        this.options.endpoint = [window.location.protocol, '//', window.location.host].join('');
+    // ensure endpoint is a URL
+    if (!this.options.endpoint.match(/^https?:\/\//)) {
+        this.options.endpoint = [window.location.protocol, '//', window.location.host].join('') + this.options.endpoint;
     }
 
     // ensure endpoint specifies a port
     // (else socket.io assumes server is on same port as client, even if on different host)
-    if (!this.options.endpoint.match(/:\d+$/))
-        this.options.endpoint += ':80';
+    if (!this.options.endpoint.match(/:\d+$/)) {
+    	if (this.options.endpoint.match(/^https:\/\//)) {
+            this.options.endpoint += ':443';
+        }
+        else {
+            this.options.endpoint += ':80';
+        }
+    }
 
     // map from mimes to commands necessary to run code
     this.commands = {
