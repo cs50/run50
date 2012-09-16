@@ -535,6 +535,15 @@ CS50.Run.prototype.download = function() {
         this.options.onDownload();
 };
 
+
+/**
+ * Doubly escapes HTML in string, a la PHP's htmlspecialchars.
+ *
+ */
+CS50.Run.prototype.escape = function(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;').replace(/&/g, '&amp;');
+}
+
 /**
  * Execute a queue of commands in sequence
  *
@@ -616,7 +625,7 @@ CS50.Run.prototype.execute = function(commands) {
         this.socket.on('stdout', function(data) {
 
             // prepend data, and adjust text indent to match
-            var $prompt = $('<span>' + data + '</span>');
+            var $prompt = $('<span>' + me.escape(data) + '</span>');
             var $input = $container.find('.run50-input.active').before($prompt);
             var indent = $prompt.position().left - 
                 parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
@@ -635,7 +644,7 @@ CS50.Run.prototype.execute = function(commands) {
         this.socket.on('stderr', function(data) {
 
             // if we get a valid ansi sequence, display the message
-            buffer += data;
+            buffer += me.escape(data);
             if (validANSI(buffer)) {
 
 
