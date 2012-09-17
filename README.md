@@ -23,3 +23,7 @@ The options object passed to the `CS50.Run` constructor can define the following
 * `uploadUrl`: Location of server's /upload route.
 
 Of these keys, `container` is required.
+
+# License
+
+http://creativecommons.org/licenses/by-nc-sa/3.0/
