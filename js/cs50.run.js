@@ -1028,6 +1028,7 @@ CS50.Run.prototype.upload = function(filename, commands) {
         dataType: 'json',
         type: 'post',
         url: this.options.endpoint + '/upload',
+        xhrFields: { withCredentials: true },
         beforeSend: function(xhr) {
             $runBtn.click(abortUpload);
             
