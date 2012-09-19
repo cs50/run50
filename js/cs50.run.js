@@ -27,7 +27,7 @@ CS50.Run = function(options) {
     // default options
     this.options.defaultCode = (options.defaultCode === undefined) ? false : options.defaultCode;
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
-    this.options.endpoint = (options.endpoint === undefined) ? '/' : options.endpoint;
+    this.options.endpoint = (options.endpoint === undefined) ? 'https://run.cs50.net/' : options.endpoint;
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
     this.options.onCreate = (options.onCreate === undefined) ? false : options.onCreate;
     this.options.onDownload = (options.onDownload === undefined) ? false : options.onDownload;
@@ -1028,7 +1028,7 @@ CS50.Run.prototype.upload = function(filename, commands) {
         dataType: 'json',
         type: 'post',
         url: this.options.endpoint + '/upload',
-        xhrFields: { withCredentials: true },
+        xhrFields: { withCredentials: true }, // send SANDBOX50 cookie
         beforeSend: function(xhr) {
             $runBtn.click(abortUpload);
             
