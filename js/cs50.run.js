@@ -27,7 +27,7 @@ CS50.Run = function(options) {
     // default options
     this.options.defaultCode = (options.defaultCode === undefined) ? false : options.defaultCode;
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'C' : options.defaultLanguage;
-    this.options.endpoint = (options.endpoint === undefined) ? 'https://run.cs50.net/' : options.endpoint;
+    this.options.endpoint = (options.endpoint === undefined) ? 'https://sandbox.cs50.net/' : options.endpoint;
     this.options.languages = (options.languages === undefined) ? ['C', 'Java', 'PHP', 'Python', 'Ruby'] : options.languages;
     this.options.onCreate = (options.onCreate === undefined) ? false : options.onCreate;
     this.options.onDownload = (options.onDownload === undefined) ? false : options.onDownload;
