@@ -588,9 +588,9 @@ CS50.Run.prototype.execute = function(commands) {
         $container.find('.run50-input.active').focus();
         this.scroll($container);
 
-        // listen for success
+        // listen for exit
         var me = this;
-        this.socket.on('success', function(data) {
+        this.socket.on('exit', function(data) {
             me.socket.disconnect();
 
             // error occurred on a command, so halt execution of queue and display error
