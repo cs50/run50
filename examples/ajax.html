@@ -30,12 +30,13 @@
 
                     // run cmd
                     $.ajax({
-                     data: {
+                     contentType: 'application/json',
+                     data: JSON.stringify({
                       cmd: $('#cmd1').val(),
                       sandbox: {
                        homedir: id
                       }
-                     },
+                     }),
 
                      // error
                      error: function(jqXHR, textStatus, errorThrown) {
@@ -56,11 +57,12 @@
 
                         // run cmd
                         $.ajax({
-                         data: {
+                         contentType: 'application/json',
+                         data: JSON.stringify({
                           cmd: $('#cmd2').val(),
                           sandbox: data.sandbox,
                           stdin: $('#stdin').val()
-                         },
+                         }),
 
                          // error
                          error: function(jqXHR, textStatus, errorThrown) {
