@@ -34,7 +34,7 @@ CS50.Run = function(options) {
     this.options.onLoadFromHistory = (options.onLoadFromHistory === undefined) ? false : options.onLoadFromHistory;
     this.options.onSave = (options.onSave === undefined) ? false : options.onSave;
     this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
-    this.options.scrollback = (options.scrollback === undefined) ? 8192 : options.scrollback;
+    this.options.scrollback = (options.scrollback === undefined) ? 1024 : options.scrollback;
 
     // trim trailing slash(es) from endpoint
     this.options.endpoint = this.options.endpoint.replace(/\/+$/, '');
@@ -1003,44 +1003,59 @@ CS50.Run.prototype.scroll = function($container) {
 CS50.Run.prototype.updateConsole = function(text) {
     var $container = $(this.options.container);
 
-    /*
+    // TODO: ensure we don't chop an ANSI control character
+
     // trim text to scrollback length + 1 (so that ellipsis gets inserted later as needed)
     if (text.length > this.options.scrollback) {
-        text = text.slice(-(this.options.scrollback + 1));
+        text = text.slice(-(this.options.scrollback + 101));
     }
-    */
 
-    // nl2br
+    // colorize text
+    var html = ansispan(text).replace(/\r\n<\/span>/g, '</span>\r\n').replace(/\n<\/span>/g, '</span>\n');
+    /*
     var html = ansispan(text).replace(/\r\n<\/span>/g, "</span><br/>")
         .replace(/\n<\/span>/g, "</span><br/>")
         .replace(/<span>\r\n/g, "<br/><span>")
         .replace(/<span>\n/g, "<br/><span>");
+        */
 
-    // clone console's subtree
-    var subtree = $container.find('.run50-console').clone();
+    /*
+    // insert text into console
+    var $prompt = $('<span>').html(html);
+    var $input = $container.find('.run50-input.active').before($prompt);
+    var indent = $prompt.position().left - 
+        parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
+        $prompt.width();
+    $input.css({
+        "text-indent": indent,
+        "min-width": indent,
+        "margin-left": -indent
+    });
+    $prompt.replaceWith($prompt.text());
+    */
 
-    // insert text into cloned subtree
-    subtree.find('.run50-input.active').before(html);
+    // insert text into console
+    //$container.find('.run50-input.active').before($(html));
 
-    // trim subtree to fit within scrollback buffer (by iterating over children in reverse order)
-    var children = subtree.contents();
+    // trim console to fit within scrollback buffer (by iterating over children in reverse order)
+    var children = $container.find('.run50-console').contents();
     for (var i = children.length - 1, length = 0; i >= 0; i--) {
 
-        // if node's text would exceed scrollback buffer
-        if (length + $(children[i]).text().length > this.options.scrollback) {
+        // get child's text
+        var text = $(children[i]).text();
 
-            // prefix node's substring with an ellipsis
-            var text = '...';
-            if (this.options.scrollback - length > 0) {
-                text += $(children[i]).text().slice(-(this.options.scrollback - length));
-            }
+        // if keeping entirety of child's text would exceed scrollback buffer
+        if (length + text.length > this.options.scrollback) {
 
-            // trim node's text
+            // find substring of text that would fit in scrollback buffer
+            var substring = text.substr(text.length - (this.options.scrollback - length));
+
+            // trim child's text
             if (children[i].nodeType === Node.TEXT_NODE) {
-                children[i].nodeValue = text;
+                children[i].nodeValue = '...' + substring;
             }
-            else {
-                $(children[i]).text(text);
+            else if (children[i].nodeType === Node.ELEMENT_NODE) {
+                $(children[i]).text('...' + substring);
             }
 
             // remove preceding siblings from DOM (since they'd also exceed scrollback buffer)
@@ -1057,13 +1072,6 @@ CS50.Run.prototype.updateConsole = function(text) {
         }
 
     }
-
-    // update console with trimmed subtree
-    $container.find('.run50-console').empty();
-    $container.find('.run50-console').append(subtree.contents());
-
-    // give (new) console focus
-    $container.find('.run50-input').focus();
 
     /* TODO: remove once sure unnecessary
     var indent = $prompt.position().left - 
