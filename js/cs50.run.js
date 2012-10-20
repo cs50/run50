@@ -9,13 +9,13 @@ var CS50 = CS50 || {};
  *      defaultCode: Value of the code editor when no history is loaded
  *      defaultLanguage: Language to start the editor off in (C, Java, PHP, Python, Ruby)
  *      endpoint: URL of CS50 Run's server
- *      languages: Languages user can choose from (C, Java, PHP, Python, Ruby)
+ *      languages: Array of languages user can choose from (C, Java, PHP, Python, Ruby)
  *      onCreate: Callback for editor creation
  *      onDownload: Callback for download button pressed
  *      onLoadFromHistory: Callback for loading a revision from a user's history
  *      onSave: Callback for saving a revision
  *      prompt: Prompt to be displayed in the console
- *
+ *      scrollback: Number of characters to be displayed in the console at once
  */
 CS50.Run = function(options) {
     this.options = options;
@@ -34,6 +34,7 @@ CS50.Run = function(options) {
     this.options.onLoadFromHistory = (options.onLoadFromHistory === undefined) ? false : options.onLoadFromHistory;
     this.options.onSave = (options.onSave === undefined) ? false : options.onSave;
     this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
+    this.options.scrollback = (options.scrollback === undefined) ? 8192 : options.scrollback;
 
     // trim trailing slash(es) from endpoint
     this.options.endpoint = this.options.endpoint.replace(/\/+$/, '');
@@ -640,8 +641,14 @@ CS50.Run.prototype.execute = function(commands) {
         // listen for stdout
         this.socket.on('stdout', function(data) {
 
+            // trim data scrollback length + 1 (so that ellipsis gets inserted later as needed)
+            var text = me.escape(data);
+            if (text.length > me.options.scrollback) {
+                text = text.slice(-(me.options.scrollback + 1));
+            }
+
             // prepend data, and adjust text indent to match
-            var $prompt = $('<span>').text(me.escape(data));
+            var $prompt = $('<span>').text(text);
             var $input = $container.find('.run50-input.active').before($prompt);
             var indent = $prompt.position().left - 
                 parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
@@ -653,6 +660,43 @@ CS50.Run.prototype.execute = function(commands) {
             });
             $prompt.replaceWith($prompt.text());
             me.scroll($container);
+
+            // confine console to scrollback buffer by iterating over console's children in reverse order
+            var children = $container.find('.run50-console').contents();
+            for (var i = children.length - 1, length = 0; i >= 0; i--) {
+
+                // if node's text would exceed scrollback buffer
+                if (length + $(children[i]).text().length > me.options.scrollback) {
+
+                    // prefix node's substring with an ellipsis
+                    var text = '...';
+                    if (me.options.scrollback - length > 0) {
+                        text += $(children[i]).text().slice(-(me.options.scrollback - length));
+                    }
+
+                    // trim node's text
+                    if (children[i].nodeType === Node.TEXT_NODE) {
+                        children[i].nodeValue = text;
+                    }
+                    else {
+                        $(children[i]).text(text);
+                    }
+
+                    // remove preceding siblings from DOM (since they'd also exceed scrollback buffer)
+                    for (var j = i - 1; j >= 0; j--) {
+                        $(children[j]).remove();
+                    }
+                    break;
+
+                }
+
+                // else update tally
+                else {
+                    length += $(children[i]).text().length;
+                }
+
+            }
+
         });
 
         // listening and buffering for standard error
@@ -837,7 +881,7 @@ CS50.Run.prototype.newline = function($container, hidePrompt) {
 CS50.Run.prototype.run = function() {
     // construct commands to run
     var commandsToRun = _.map(this.commands[this.language].slice(0), function(e) {
-        return e.command + ' ' + e.args
+        return $.trim(e.command + ' ' + e.args)
     });
 
     // upload file and then run the necessary commands
