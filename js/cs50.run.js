@@ -638,86 +638,39 @@ CS50.Run.prototype.execute = function(commands) {
             me.failure($(me.options.container), data.error.code);
         });
         
-        // listen for stdout
+        // listen for (and buffer) stdout
+        var stdout;
         this.socket.on('stdout', function(data) {
+            
+            // buffer stdout
+            stdout = (typeof(stdout) === 'undefined') ? me.escape(data) : stdout + me.escape(data);
 
-            // trim data scrollback length + 1 (so that ellipsis gets inserted later as needed)
-            var text = me.escape(data);
-            if (text.length > me.options.scrollback) {
-                text = text.slice(-(me.options.scrollback + 1));
+            // if buffer is a valid ANSI string, insert it into DOM
+            if (validANSI(stdout)) {
+
+                // update console
+                me.updateConsole(stdout);
+
+                // flush buffer
+                stdout = undefined;
             }
-
-            // prepend data, and adjust text indent to match
-            var $prompt = $('<span>').text(text);
-            var $input = $container.find('.run50-input.active').before($prompt);
-            var indent = $prompt.position().left - 
-                parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
-                $prompt.width();
-            $input.css({
-                "text-indent": indent,
-                "min-width": indent,
-                "margin-left": -indent
-            });
-            $prompt.replaceWith($prompt.text());
-            me.scroll($container);
-
-            // confine console to scrollback buffer by iterating over console's children in reverse order
-            var children = $container.find('.run50-console').contents();
-            for (var i = children.length - 1, length = 0; i >= 0; i--) {
-
-                // if node's text would exceed scrollback buffer
-                if (length + $(children[i]).text().length > me.options.scrollback) {
-
-                    // prefix node's substring with an ellipsis
-                    var text = '...';
-                    if (me.options.scrollback - length > 0) {
-                        text += $(children[i]).text().slice(-(me.options.scrollback - length));
-                    }
-
-                    // trim node's text
-                    if (children[i].nodeType === Node.TEXT_NODE) {
-                        children[i].nodeValue = text;
-                    }
-                    else {
-                        $(children[i]).text(text);
-                    }
-
-                    // remove preceding siblings from DOM (since they'd also exceed scrollback buffer)
-                    for (var j = i - 1; j >= 0; j--) {
-                        $(children[j]).remove();
-                    }
-                    break;
-
-                }
-
-                // else update tally
-                else {
-                    length += $(children[i]).text().length;
-                }
-
-            }
-
         });
 
-        // listening and buffering for standard error
-        var buffer = "";
+        // listen for (and buffer) stderr
+        var stderr;
         this.socket.on('stderr', function(data) {
+            
+            // buffer stderr
+            stderr = (typeof(stderr) === 'undefined') ? me.escape(data) : stderr + me.escape(data);
 
-            // if we get a valid ansi sequence, display the message
-            buffer += me.escape(data);
-            if (validANSI(buffer)) {
-                // get colored buffer and correct for newlines
-                var colored = ansispan(buffer).replace(/\r\n<\/span>/g, "</span><br/>")
-                                .replace(/\n<\/span>/g, "</span><br/>")
-                                .replace(/<span>\r\n/g, "<br/><span>")
-                                .replace(/<span>\n/g, "<br/><span>");
+            // if buffer is a valid ANSI string, insert it into DOM
+            if (validANSI(stderr)) {
 
-                // display error message
-                $container.find('.run50-input.active').before(colored);
-                me.scroll($container);
+                // update console
+                me.updateConsole(stderr);
 
-                // clear the buffer    
-                buffer = "";
+                // flush buffer
+                stderr = undefined;
             }
         });
 
@@ -1038,7 +991,95 @@ CS50.Run.prototype.setLanguage = function(mime) {
  *
  */
 CS50.Run.prototype.scroll = function($container) {
-    $container.find('.run50-console').scrollTop(999999);
+    $(this.options.container).find('.run50-console').scrollTop(999999);
+};
+
+/**
+ * Inserts text into console
+ *
+ * @param text {String} text to insert
+ *
+ */
+CS50.Run.prototype.updateConsole = function(text) {
+    var $container = $(this.options.container);
+
+    /*
+    // trim text to scrollback length + 1 (so that ellipsis gets inserted later as needed)
+    if (text.length > this.options.scrollback) {
+        text = text.slice(-(this.options.scrollback + 1));
+    }
+    */
+
+    // nl2br
+    var html = ansispan(text).replace(/\r\n<\/span>/g, "</span><br/>")
+        .replace(/\n<\/span>/g, "</span><br/>")
+        .replace(/<span>\r\n/g, "<br/><span>")
+        .replace(/<span>\n/g, "<br/><span>");
+
+    // clone console's subtree
+    var subtree = $container.find('.run50-console').clone();
+
+    // insert text into cloned subtree
+    subtree.find('.run50-input.active').before(html);
+
+    // trim subtree to fit within scrollback buffer (by iterating over children in reverse order)
+    var children = subtree.contents();
+    for (var i = children.length - 1, length = 0; i >= 0; i--) {
+
+        // if node's text would exceed scrollback buffer
+        if (length + $(children[i]).text().length > this.options.scrollback) {
+
+            // prefix node's substring with an ellipsis
+            var text = '...';
+            if (this.options.scrollback - length > 0) {
+                text += $(children[i]).text().slice(-(this.options.scrollback - length));
+            }
+
+            // trim node's text
+            if (children[i].nodeType === Node.TEXT_NODE) {
+                children[i].nodeValue = text;
+            }
+            else {
+                $(children[i]).text(text);
+            }
+
+            // remove preceding siblings from DOM (since they'd also exceed scrollback buffer)
+            for (var j = i - 1; j >= 0; j--) {
+                $(children[j]).remove();
+            }
+            break;
+
+        }
+
+        // else update tally
+        else {
+            length += $(children[i]).text().length;
+        }
+
+    }
+
+    // update console with trimmed subtree
+    $container.find('.run50-console').empty();
+    $container.find('.run50-console').append(subtree.contents());
+
+    // give (new) console focus
+    $container.find('.run50-input').focus();
+
+    /* TODO: remove once sure unnecessary
+    var indent = $prompt.position().left - 
+        parseInt($container.find('.run50-console').css('padding-left')) + 
+        $prompt.width();
+    $input.css({
+        "text-indent": indent,
+        "min-width": indent,
+        "margin-left": -indent
+    });
+    $prompt.replaceWith($prompt.text());
+    */
+
+    // scroll console
+    this.scroll(this.options.container);
+
 };
 
 /**
