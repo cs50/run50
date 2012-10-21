@@ -1003,13 +1003,6 @@ CS50.Run.prototype.scroll = function($container) {
 CS50.Run.prototype.updateConsole = function(text) {
     var $container = $(this.options.container);
 
-    /*
-    // trim text to scrollback length + 1 (so that ellipsis gets inserted later as needed)
-    if (text.length > this.options.scrollback) {
-        text = text.slice(-(this.options.scrollback + 101));
-    }
-    */
-
     // colorize text
     var html = ansispan(text).replace(/\r\n<\/span>/g, '</span>\r\n').replace(/\n<\/span>/g, '</span>\n');
 
@@ -1024,6 +1017,7 @@ CS50.Run.prototype.updateConsole = function(text) {
         "min-width": indent,
         "margin-left": -indent
     });
+    $span.replaceWith($span.html());
 
     // trim console to fit within scrollback buffer (by iterating over children in reverse order)
     var children = $container.find('.run50-console').contents();
@@ -1060,18 +1054,6 @@ CS50.Run.prototype.updateConsole = function(text) {
         }
 
     }
-
-    /* TODO: remove once sure unnecessary
-    var indent = $prompt.position().left - 
-        parseInt($container.find('.run50-console').css('padding-left')) + 
-        $prompt.width();
-    $input.css({
-        "text-indent": indent,
-        "min-width": indent,
-        "margin-left": -indent
-    });
-    $prompt.replaceWith($prompt.text());
-    */
 
     // scroll console
     this.scroll(this.options.container);
