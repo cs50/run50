@@ -1003,39 +1003,27 @@ CS50.Run.prototype.scroll = function($container) {
 CS50.Run.prototype.updateConsole = function(text) {
     var $container = $(this.options.container);
 
-    // TODO: ensure we don't chop an ANSI control character
-
+    /*
     // trim text to scrollback length + 1 (so that ellipsis gets inserted later as needed)
     if (text.length > this.options.scrollback) {
         text = text.slice(-(this.options.scrollback + 101));
     }
+    */
 
     // colorize text
     var html = ansispan(text).replace(/\r\n<\/span>/g, '</span>\r\n').replace(/\n<\/span>/g, '</span>\n');
-    /*
-    var html = ansispan(text).replace(/\r\n<\/span>/g, "</span><br/>")
-        .replace(/\n<\/span>/g, "</span><br/>")
-        .replace(/<span>\r\n/g, "<br/><span>")
-        .replace(/<span>\n/g, "<br/><span>");
-        */
 
-    /*
-    // insert text into console
-    var $prompt = $('<span>').html(html);
-    var $input = $container.find('.run50-input.active').before($prompt);
-    var indent = $prompt.position().left - 
-        parseInt($(me.options.container).find('.run50-console').css('padding-left')) + 
-        $prompt.width();
+    // insert text into console, indenting first line
+    var $span= $('<span>').html(html);
+    var $input = $container.find('.run50-input.active').before($span);
+    var indent = $span.position().left - 
+        parseInt($container.find('.run50-console').css('padding-left')) + 
+        $span.width();
     $input.css({
         "text-indent": indent,
         "min-width": indent,
         "margin-left": -indent
     });
-    $prompt.replaceWith($prompt.text());
-    */
-
-    // insert text into console
-    //$container.find('.run50-input.active').before($(html));
 
     // trim console to fit within scrollback buffer (by iterating over children in reverse order)
     var children = $container.find('.run50-console').contents();
