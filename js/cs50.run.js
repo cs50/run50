@@ -34,7 +34,7 @@ CS50.Run = function(options) {
     this.options.onLoadFromHistory = (options.onLoadFromHistory === undefined) ? false : options.onLoadFromHistory;
     this.options.onSave = (options.onSave === undefined) ? false : options.onSave;
     this.options.prompt = (options.prompt === undefined) ? 'jharvard@run.cs50.net (~):' : options.prompt;
-    this.options.scrollback = (options.scrollback === undefined) ? 1024 : options.scrollback;
+    this.options.scrollback = (options.scrollback === undefined) ? 8192 : options.scrollback;
 
     // trim trailing slash(es) from endpoint
     this.options.endpoint = this.options.endpoint.replace(/\/+$/, '');
