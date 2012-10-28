@@ -105,6 +105,8 @@ h1, h2, h3, h4, h5, h6 {
             pre {
                 margin: 0px;
                 padding: 0px;
+                display: inline;
+                font-family: Consolas, monospace;
             }
             
             .run, .stderr, .stdin, .exit, .exists, .passed {
@@ -114,7 +116,7 @@ h1, h2, h3, h4, h5, h6 {
                 color: white;
                 border-radius: 3px;
                 line-height: 10px;
-                font-family: Consolas;
+                font-family: Consolas, monospace;
             }
           
             .stderr {

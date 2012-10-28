@@ -91,7 +91,8 @@ CS50.Check = function(options) {
 <% } else if (expected.type == "stdin") { %><span class="stdin">STDIN</span> \
 <% } else if (expected.type == "exists") { %><span class="exists">FILE</span> \
 <% } else if (expected.type == "run") { %><span class="run">COMMAND</span> \
-<% } %><%= ansispan(expected.value) %></pre> \
+<% } %><% if (expected.value && expected.value.toString().split("\\n").length > 2) { %>\n\
+<% } %><%= (expected.value) ? ansispan(expected.value) : "" %></pre> \
         ', 
 
         actual: ' \
