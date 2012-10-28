@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <link href="build/cs50.check.min.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="build/cs50.check.min.js"></script>
+        <script>
+            $(function() {
+                var check = new CS50.Check({
+                    container: '#check',
+                    check50Id: 5
+                });
+            });
+        </script>
+        <style type="text/css">
+            body, html {
+                height: 100%;
+                margin: 0px;
+                padding: 0px;
+                width: 100%;
+            }
+
+            #run {
+                height: 100%;
+                width: 100%;
+            }
+        </style>
+        <title>This is CS50 Check.</title>
+    </head>
+    <body>
+        <div id="check"></div>
+    </body>
+</html>

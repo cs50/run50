@@ -3,7 +3,7 @@
 rm -rf build
 mkdir -p build/img
 
-echo "Building JavaScript..."
+echo "Building Run JavaScript..."
 cat \
     js/lib/jquery-ui-1.8.21.custom.min.js \
     js/lib/underscore-min.js \
@@ -27,7 +27,7 @@ cat \
     > build/cs50.run.min.js
 java -jar yuicompressor-2.4.7.jar -o build/cs50.run.min.js build/cs50.run.min.js
 
-echo "Building CSS..."
+echo "Building Run CSS..."
 cat \
     css/lib/jquery-ui-1.8.21.custom.css \
     css/lib/codemirror.css \
@@ -36,6 +36,6 @@ cat \
     > build/cs50.run.min.css
 java -jar yuicompressor-2.4.7.jar -o build/cs50.run.min.css build/cs50.run.min.css
 
-echo "Copying images..."
+echo "Copying Run images..."
 cp css/img/* build/img
 cp css/lib/img/* build/img
