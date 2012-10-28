@@ -8,14 +8,14 @@ h1, h2, h3, h4, h5, h6 {
 .check50-container {
     position: relative;
     font-family: HelveticaNeue, Helvetica, sans-serif;
-    margin: 10px;
+    padding: 10px;
 
     .check50-test {
         position: relative;
         display: block;
-        margin-bottom: -1px;
+        margin-bottom: 5px;
         border: 1px solid #DDD;
-    
+
         .check50-test-desc {
             font-size: .5em;
             padding: 10px 10px;
@@ -89,21 +89,34 @@ h1, h2, h3, h4, h5, h6 {
             border-collapse: collapse;
         }
 
+        th, td {
+            vertical-align: top;
+        }
+
         th {
             text-align: left;
         }
 
         td {
-            .stderr, .exit, .exists {
+            span {
+                vertical-align: top;
+            }
+            
+            pre {
+                margin: 0px;
+                padding: 0px;
+            }
+            
+            .run, .stderr, .stdin, .exit, .exists, .passed {
                 display: inline-block;
                 font-size: 10px;
                 padding: 3px 3px 0px 3px;
                 color: white;
                 border-radius: 3px;
-                margin-top: -1px;
                 line-height: 10px;
+                font-family: Consolas;
             }
-           
+          
             .stderr {
                 background-color: red;
             }
@@ -112,24 +125,28 @@ h1, h2, h3, h4, h5, h6 {
                 background-color: blue;
             }
 
-            .exists {
-                background-color: black;
+            .run, .exists {
+                background-color: #444;
+            }
+
+            .passed, .stdin {
+                background-color: green;
             }
         }
 
         .line {
-            padding: 3px 3px 1px 15px;
+            padding: 5px 3px 3px 15px;
             background-color: #F3F3F3;
             color: #AAA;
             text-align: right;
         }
 
         .actual, .expected {
-            padding: 3px 5px 1px 5px;
+            padding: 5px 5px 3px 5px;
             width: 50%;
         }
 
-        .actual {
+        .expected {
             border-right: 1px solid #CCC;
         }
 

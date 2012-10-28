@@ -1,4 +1,6 @@
 var ansispan = function (str) {
+    var str = str.toString();
+    
     // split by ansi reset sequences. if the last thing in the array does not
     // have an ansi tag, then this string is composed of valid ansi   
     var matches = str.split("\033\[0m");

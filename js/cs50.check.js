@@ -2,20 +2,12 @@
 var CS50 = CS50 || {};
 
 /**
- * CS50 Run constructor
+ * CS50 Check constructor
  *
- * @param options {Object} Editor options:
+ * @param options {Object} Check options:
  *      container: DOM element into which editor will be loaded
- *      defaultCode: Value of the code editor when no history is loaded
- *      defaultLanguage: Language to start the editor off in (C, Java, PHP, Python, Ruby)
- *      endpoint: URL of CS50 Run's server
- *      languages: Array of languages user can choose from (C, Java, PHP, Python, Ruby)
- *      onCreate: Callback for editor creation
- *      onDownload: Callback for download button pressed
- *      onLoadFromHistory: Callback for loading a revision from a user's history
- *      onSave: Callback for saving a revision
- *      prompt: Prompt to be displayed in the console
- *      scrollback: Number of characters to be displayed in the console at once
+ *      check50Id: ID of check to display
+ *      check50Url: URL to fetch checks from
  */
 CS50.Check = function(options) {
     this.options = options;
@@ -27,6 +19,9 @@ CS50.Check = function(options) {
     // make sure a URL for a check is specified
     if (!this.options.check50Id)
         throw "Error: You must provide the ID of the check to display!"
+
+    // default options
+    this.options.check50Url == (options.check50Url == undefined) ? "http://check.cs50.net/" : options.check50Url;
 
     // define templates
     var templateHtml = {
@@ -50,32 +45,32 @@ CS50.Check = function(options) {
                         <% if (test.result != null) { %> \
                             <tr> \
                                 <th class="line">#</th> \
-                                <th class="actual">Actual</th> \
                                 <th class="expected">Expected</th> \
+                                <th class="actual">Actual</th> \
                             <tr> \
                             <% _.each(test.script, function(line, index) { %> \
-                                <% var color = (index == test.script.length - 1) ? "wrong" : "right" %> \
+                                <% var color = (index == test.script.length - 1 && !test.result) ? "wrong" : "right" %> \
                                 <tr> \
                                     <td class="line"><%= index %></td> \
-                                    <% if (index == test.script.length - 1) { %> \
+                                    <td class="expected <%= color %>"> \
+                                        <%= expected({ expected: line.expected }) %> \
+                                    </td> \
+                                    <% if (index == test.script.length - 1 && !test.result) { %> \
                                         <td class="actual <%= color %>"> \
-                                            <%= lineTpl({ line: (line.actual ? line.actual : { type: "", value: "" }) }) %> \
+                                            <%= actual({ actual: line.actual, expected: line.expected, correct: false}) %> \
                                         </td> \
                                     <% } else { %> \
                                         <td class="actual <%= color %>"> \
-                                            <%= lineTpl({ line: (line.actual ? line.actual : line.expected) }) %> \
+                                            <%= actual({ actual: line.actual, expected: line.expected, correct: true }) %> \
                                         </td> \
                                     <% } %> \
-                                    <td class="expected <%= color %>"> \
-                                        <%= lineTpl({ line: line.expected }) %> \
-                                    </td> \
                                 </tr> \
                             <% }) %> \
                         <% } else { %> \
                             <tr> \
                                 <th class="line">!</th> \
-                                <th class="actual dependency">Fix the following dependencies first:</th> \
-                                <th class="expected dependency"> \
+                                <th class="expected dependency">Fix the following dependencies first:</th> \
+                                <th class="actual dependency"> \
                                     <ul> \
                                     <% _.each(test.dependencies, function(dependency) { %> \
                                         <li><%= tests[dependency].description %></li> \
@@ -89,15 +84,38 @@ CS50.Check = function(options) {
             </div> \
         ', 
         
-        line: ' \
-            <% if (line.type == "exit") { %> \
-                <span class="exit">EXIT</span> \
-            <% } else if (line.type == "stderr") { %> \
-                <span class="stderr">STDERR</span> \
-            <% } else if (line.type == "exists") { %> \
-                <span class="exists">FILE</span> \
+        expected: ' \
+            <pre><% if (expected.type == "stdout") { %><span class="exit">STDOUT</span> \
+<% } else if (expected.type == "exit") { %><span class="exit">EXIT CODE</span> \
+<% } else if (expected.type == "stderr") { %><span class="stderr">STDERR</span> \
+<% } else if (expected.type == "stdin") { %><span class="stdin">STDIN</span> \
+<% } else if (expected.type == "exists") { %><span class="exists">FILE</span> \
+<% } else if (expected.type == "run") { %><span class="run">COMMAND</span> \
+<% } %><%= ansispan(expected.value) %></pre> \
+        ', 
+
+        actual: ' \
+            <% if (correct) { %> \
+                <span class="passed">PASSED</span> \
+            <% } else { %> \
+                <% if (actual) { %> \
+                    <% if (actual.type == "stdout") { %> \
+                        ... but received the following on <span class="exit">STDOUT</span> instead &mdash; \
+                    <% } else if (actual.type == "exit") { %> \
+                        ... but received an <span class="exit">EXIT CODE</span> of \
+                    <% } else if (actual.type == "stderr") { %> \
+                        ... but received the following on <span class="stderr">STDERR</span> instead &mdash; \
+                    <% } else if (actual.type == "stdin") { %> \
+                        ... but received the following on <span class="stderr">STDIN</span> instead &mdash; \
+                    <% } else if (actual.type == "exists") { %> \
+                        ... but received the following: <span class="exists">FILE</span> \
+                    <% } %><pre><%= ansispan(actual.value) %></pre> \
+                <% } else { %> \
+                    <% if (expected.type == "exists") { %> \
+                        ... but received no such file! \
+                    <% } %> \
+                <% } %> \
             <% } %> \
-            <%= line.value %> \
         '
     };
 
@@ -143,56 +161,21 @@ CS50.Check.prototype.createResults = function() {
         }
     });
 
-    // TODO: fetch real data
-    var tests = { 
-        "id" : "f9eec8581aed4a63b44de9a2da1eaedb",
-        "results" : { "compiles" : { "dependencies" : [  ],
-              "description" : "mario.c compiles",
-              "result" : false,
-              "script" : [ { "expected" : { "type" : "run",
-                        "value" : "clang -o mario mario.c -lcs50"
-                      } },
-                  { "actual" : { "type" : "stderr",
-                        "value" : "clang: error: no such file or directory: 'mario.c'\n"
-                      },
-                    "expected" : { "type" : "exit",
-                        "value" : 0
-                      }
-                  }
-                ]
-            },
-          "exists" : { "dependencies" : [  ],
-              "description" : "mario.c exists",
-              "result" : false,
-              "script" : [ { "expected" : { "type" : "exists",
-                        "value" : "mario.c"
-                      } } ]
-            },
-          "height of -1" : { "dependencies" : [ "compiles" ],
-              "description" : "rejects a height of -1",
-              "result" : null,
-              "script" : [  ]
-            },
-          "height of 0" : { "dependencies" : [ "compiles" ],
-              "description" : "handles a height of 0 correctly",
-              "result" : null,
-              "script" : [  ]
-            },
-          "height of 1" : { "dependencies" : [ "compiles" ],
-              "description" : "handles a height of 1 correctly",
-              "result" : null,
-              "script" : [  ]
-            },
-        }
-    } 
-
-    _.each(tests.results, function(item, index) {
-        $container.find('.check50-container').append($(me.templates.test({
-            tests: tests.results,
-            name: index,
-            test: item,
-            lineTpl: me.templates.line
-        })));
+    $.get(this.options.check50Url, {
+        check: this.options.check50Id
+    }, function(response) {
+        // get this particular check, and parse the results
+        response = response.slice(response.indexOf('{'));
+        tests = JSON.parse(response);
+        _.each(tests.results, function(item, index) {
+            $container.find('.check50-container').append($(me.templates.test({
+                tests: tests.results,
+                name: index,
+                test: item,
+                expected: me.templates.expected,
+                actual: me.templates.actual
+            })));
+        });
     });
 
     afterCreate();
