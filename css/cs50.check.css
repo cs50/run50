@@ -81,6 +81,8 @@ h1, h2, h3, h4, h5, h6 {
       padding: 0px;
       display: inline;
       font-family: Consolas, monospace; }
+    .check50-container .check50-diff td .pull-right {
+      float: right; }
     .check50-container .check50-diff td .run, .check50-container .check50-diff td .stderr, .check50-container .check50-diff td .stdin, .check50-container .check50-diff td .exit, .check50-container .check50-diff td .exists, .check50-container .check50-diff td .passed {
       display: inline-block;
       font-size: 10px;
@@ -105,7 +107,7 @@ h1, h2, h3, h4, h5, h6 {
     .check50-container .check50-diff .actual, .check50-container .check50-diff .expected {
       padding: 5px 5px 3px 5px;
       width: 50%; }
-    .check50-container .check50-diff .expected {
+    .check50-container .check50-diff td.expected {
       border-right: 1px solid #CCC; }
     .check50-container .check50-diff .wrong {
       background-color: #FDD; }

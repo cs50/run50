@@ -45,25 +45,26 @@ CS50.Check = function(options) {
                         <% if (test.result != null) { %> \
                             <tr> \
                                 <th class="line">#</th> \
-                                <th class="expected">Expected</th> \
-                                <th class="actual">Actual</th> \
+                                <th class="expected">Checks</th> \
+                                <th class="actual"></th> \
                             <tr> \
                             <% _.each(test.script, function(line, index) { %> \
                                 <% var color = (index == test.script.length - 1 && !test.result) ? "wrong" : "right" %> \
                                 <tr> \
+                                <% if (color === "right") { %> \
+                                    <td class="line"><%= index %></td> \
+                                    <td colspan="2" class="expected <%= color %>"> \
+                                        <%= expected({ expected: line.expected }) %> <span class="passed pull-right">&#10004;</span>\
+                                    </td> \
+                                <% } else { %> \
                                     <td class="line"><%= index %></td> \
                                     <td class="expected <%= color %>"> \
                                         <%= expected({ expected: line.expected }) %> \
                                     </td> \
-                                    <% if (index == test.script.length - 1 && !test.result) { %> \
-                                        <td class="actual <%= color %>"> \
-                                            <%= actual({ actual: line.actual, expected: line.expected, correct: false}) %> \
-                                        </td> \
-                                    <% } else { %> \
-                                        <td class="actual <%= color %>"> \
-                                            <%= actual({ actual: line.actual, expected: line.expected, correct: true }) %> \
-                                        </td> \
-                                    <% } %> \
+                                    <td class="actual <%= color %>"> \
+                                        <%= actual({ actual: line.actual, expected: line.expected, correct: false}) %> \
+                                    </td> \
+                                <% } %> \
                                 </tr> \
                             <% }) %> \
                         <% } else { %> \
@@ -85,36 +86,57 @@ CS50.Check = function(options) {
         ', 
         
         expected: ' \
-            <pre><% if (expected.type == "stdout") { %><span class="exit">STDOUT</span> \
-<% } else if (expected.type == "exit") { %><span class="exit">EXIT CODE</span> \
-<% } else if (expected.type == "stderr") { %><span class="stderr">STDERR</span> \
-<% } else if (expected.type == "stdin") { %><span class="stdin">STDIN</span> \
-<% } else if (expected.type == "exists") { %><span class="exists">FILE</span> \
-<% } else if (expected.type == "run") { %><span class="run">COMMAND</span> \
-<% } %><% if (expected.value && expected.value.toString().split("\\n").length > 2) { %>\n\
-<% } %><%= (expected.value) ? ansispan(expected.value) : "" %></pre> \
+            <% if (expected.type == "stdout" || expected.type == "stderr") { %> \
+                <% var type = (expected.type == "stdout") ? "standard out" : "standard in" %> \
+                <% var pad = (expected.type == "stdout" && expected.value && expected.value.toString().split("\\n").length > 1) %> \
+                <% if (expected.value !== undefined && expected.value == "/^([\\\\s\\\\S]*)$/") { %>\
+                    Expecting any sort of <%= type %>. \
+                <% } else { %> \
+                    <% if (expected.type == "stdout") { %> \
+                        Expecting the following on standard in &mdash; \
+                    <% } else { %> \
+                        Expecting the following on standard in &mdash; \
+                    <% } %> \
+<pre><% if (pad) { %>\n\n\n<% } %>\
+<%= (expected.value !== undefined) ? ansispan(expected.value.toString().replace("/^(", "").replace(")$/", "")) : "" %></pre> \
+                <% } %> \
+            <% } else { %> \
+                <% if (expected.type == "exit") { %> \
+                    Expecting an exit code of \
+                <% } else if (expected.type == "stdin") { %> \
+                    <% if (expected.value === undefined) { %> \
+                        Expecting a prompt for standard input ... \
+                    <% } else { %> \
+                        Takes in standard input of \
+                    <% } %> \
+                <% } else if (expected.type == "exists") { %> \
+                    Checking for file \
+                <% } else if (expected.type == "run") { %> \
+                    Running... \
+                <% } %> \
+                <pre><%= (expected.value !== undefined) ? ansispan(expected.value.toString().replace("\\n", "")) + "." : "" %></pre> \
+            <% } %> \
         ', 
 
         actual: ' \
-            <% if (correct) { %> \
-                <span class="passed">PASSED</span> \
+            <% console.log(actual) %> \
+            <% if (actual) { %> \
+                <% if (actual.type == "stdout") { %> \
+... but received the following on standard out instead &mdash; \
+                <% } else if (actual.type == "exit") { %> \
+... but received an exit code of \
+                <% } else if (actual.type == "stderr") { %> \
+... but received the following on standard error instead &mdash; \
+                <% } else if (actual.type == "stdin") { %> \
+... but received the following on standard in instead &mdash; \
+                <% } else if (actual.type == "exists") { %> \
+... but received the following file instead &mdash; \
+                <% } %> \
+                <% var pad = (actual.type == "stdout" && actual.value && actual.value.toString().split("\\n").length > 2) %> \
+                <pre><% if (pad) { %>\n\n<% } %><%= ansispan(actual.value.toString().replace(/\\n+$/,"")) %></pre> \
             <% } else { %> \
-                <% if (actual) { %> \
-                    <% if (actual.type == "stdout") { %> \
-                        ... but received the following on <span class="exit">STDOUT</span> instead &mdash; \
-                    <% } else if (actual.type == "exit") { %> \
-                        ... but received an <span class="exit">EXIT CODE</span> of \
-                    <% } else if (actual.type == "stderr") { %> \
-                        ... but received the following on <span class="stderr">STDERR</span> instead &mdash; \
-                    <% } else if (actual.type == "stdin") { %> \
-                        ... but received the following on <span class="stderr">STDIN</span> instead &mdash; \
-                    <% } else if (actual.type == "exists") { %> \
-                        ... but received the following: <span class="exists">FILE</span> \
-                    <% } %><pre><%= ansispan(actual.value) %></pre> \
-                <% } else { %> \
-                    <% if (expected.type == "exists") { %> \
-                        ... but received no such file! \
-                    <% } %> \
+                <% if (expected.type == "exists") { %> \
+... but received no such file! \
                 <% } %> \
             <% } %> \
         '

@@ -108,7 +108,11 @@ h1, h2, h3, h4, h5, h6 {
                 display: inline;
                 font-family: Consolas, monospace;
             }
-            
+           
+            .pull-right {
+                float: right;
+            }
+
             .run, .stderr, .stdin, .exit, .exists, .passed {
                 display: inline-block;
                 font-size: 10px;
@@ -148,7 +152,7 @@ h1, h2, h3, h4, h5, h6 {
             width: 50%;
         }
 
-        .expected {
+        td.expected {
             border-right: 1px solid #CCC;
         }
 
