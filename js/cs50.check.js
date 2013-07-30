@@ -21,7 +21,7 @@ CS50.Check = function(options) {
         throw "Error: You must provide the ID of the check to display!"
 
     // default options
-    this.options.check50Url == (options.check50Url == undefined) ? "http://check.cs50.net/" : options.check50Url;
+    this.options.check50Url = (options.check50Url == undefined) ? "http://check.cs50.net/" : options.check50Url;
 
     // define templates
     var templateHtml = {
@@ -83,8 +83,8 @@ CS50.Check = function(options) {
                     </table> \
                 </div> \
             </div> \
-        ', 
-        
+        ',
+
         expected: ' \
             <% if (expected.type == "stdout" || expected.type == "stderr") { %> \
                 <% var type = (expected.type == "stdout") ? "standard out" : "standard in" %> \
@@ -116,10 +116,9 @@ CS50.Check = function(options) {
                 <% } %> \
                 <pre><%= (expected.value !== undefined) ? ansispan(expected.value.toString().replace("\\n", "")) + "." : "" %></pre> \
             <% } %> \
-        ', 
+        ',
 
         actual: ' \
-            <% console.log(actual) %> \
             <% if (actual) { %> \
                 <% if (actual.type == "stdout") { %> \
 ... but received the following on standard out instead &mdash; \
@@ -170,17 +169,17 @@ CS50.Check.prototype.createResults = function() {
     // create run container
     $container.html(this.templates.results({
     }));
-    
-    // open test once test is clicked on            
+
+    // open test once test is clicked on
     $container.on('click', '.check50-test-desc', function(e) {
         // expand or close question depending on if it's currently showing
         if ($(this).hasClass('expanded')) {
             $(this).removeClass('expanded');
-            $(this).closest('.check50-test').find('.check50-diff').slideUp(100); 
-        } 
+            $(this).closest('.check50-test').find('.check50-diff').slideUp(100);
+        }
         else {
             $(this).addClass('expanded');
-            $(this).closest('.check50-test').find('.check50-diff').slideDown(100); 
+            $(this).closest('.check50-test').find('.check50-diff').slideDown(100);
         }
     });
 

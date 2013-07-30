@@ -6,12 +6,21 @@
         <script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
         <script type="text/javascript" src="build/cs50.check.min.js"></script>
         <script>
-            $(function() {
-                var check = new CS50.Check({
-                    container: '#check',
-                    check50Id: "dc4a711902ab48c7bb042a6e85d4a991"
+            function getParameterByName(name) {
+                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                    results = regex.exec(location.search);
+                return results == null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
+            }
+
+            var checkId = getParameterByName('check');
+            if (checkId !== null) {
+                $(function() {
+                    var check = new CS50.Check({
+                        container: '#check',
+                        check50Id: checkId
+                    });
                 });
-            });
+            }
         </script>
         <style type="text/css">
             body, html {
