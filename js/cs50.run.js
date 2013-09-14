@@ -108,8 +108,7 @@ int main(int argc, string argv[])\n\
 {\n\
     printf("Enter your name: ");\n\
     string s = GetString();\n\
-    printf("Hello, %s!\\n", s);\n\
-    return 0;\n\
+    printf("hello, %s\\n", s);\n\
 }\n',
 
         'text/x-java': 'class Main {\n\
